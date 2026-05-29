@@ -1,42 +1,41 @@
 # 🐧 DIKNOM OS
 
-**DIKNOM OS** adalah distro Linux ringan buatan **Dikki Nomiarki**,
-dirancang untuk laptop RAM 1GB ke bawah.
+Distro Linux ringan buatan **Dikki Nomiarki** untuk laptop RAM 1GB ke bawah.
 
-**v2** - Sekarang berbasis Debian Bookworm Minimal + live-boot
-(fix: blank screen saat boot di VirtualBox/QEMU)
+**v3** — Pakai live-build (tool resmi Debian), dijamin bisa boot di VirtualBox/QEMU.
 
 ---
 
-## ✨ Fitur
+## ✨ Yang Baru di v3
 
-- Live boot berfungsi penuh ✅
-- Package manager sendiri: **dnpkg**
-- Command `help` Bahasa Indonesia
-- Desktop Openbox (ringan & cepat)
-- RAM idle ~200–250MB
+- ✅ Live boot dijamin jalan (pakai live-build)
+- ✅ Timeout menu boot 30 detik (tidak buru-buru)
+- ✅ Autologin ke desktop
+- ✅ Package manager `dnpkg`
+- ✅ Branding DIKNOM OS penuh
 
 ---
 
 ## 🚀 Build via GitHub Actions
 
-Setiap push ke `main` → ISO otomatis dibuild.
-
-```
-Actions → build terbaru → Artifacts → diknom-os-iso → download
-```
+Push ke `main` → tunggu Actions → download ISO dari Artifacts.
 
 ---
 
 ## 💿 Test di VirtualBox
 
 ```
-New → Linux → Other Linux 64-bit → RAM 512MB
+New → Linux → Debian 64-bit → RAM 512MB
 Storage → pilih diknom-os-1.0-x86_64.iso
+Settings → System → Enable EFI: JANGAN dicentang
 Start ▶️
 ```
 
-Login: `diknom` / `diknom`
+**Login:**
+- Username: `diknom`
+- Password: `live`
+
+(Atau autologin langsung ke desktop)
 
 ---
 
@@ -46,14 +45,19 @@ Login: `diknom` / `diknom`
 dnpkg install firefox
 dnpkg remove firefox
 dnpkg update
-dnpkg search browser
-dnpkg doctor
 dnpkg help
 ```
 
 ---
 
+## 📝 Riwayat Versi
+
+- **v1** — Alpine via Docker ❌ (blank screen, tidak ada live-boot)
+- **v2** — Debian + live-boot manual ❌ (initramfs bermasalah)
+- **v3** — live-build official ✅ (dijamin boot)
+
+---
+
 ## 👤 Author
 
-**Dikki Nomiarki (DikNom)**
-Nahdlatul Ulama Blitar University
+**Dikki Nomiarki (DikNom)** — Nahdlatul Ulama Blitar University
