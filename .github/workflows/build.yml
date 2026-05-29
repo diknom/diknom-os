@@ -13,14 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install build tools
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq \
-            squashfs-tools xorriso \
-            grub-pc-bin grub-efi-amd64-bin \
-            mtools wget
-
       - name: Build DIKNOM OS
         run: |
           chmod +x build.sh
@@ -33,9 +25,9 @@ jobs:
           path: diknom-os-1.0-x86_64.iso
           retention-days: 30
 
-      - name: Show ISO info
+      - name: Info hasil build
         run: |
-          echo "=============================="
+          echo "================================"
           echo "  DIKNOM OS build selesai!"
-          echo "=============================="
+          echo "================================"
           ls -lh diknom-os-1.0-x86_64.iso
