@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-#   DIKNOM OS - Build Script v4
+#   DIKNOM OS - Build Script v5
 #   Method : Debian container + native live-build
 #   Status : Dijamin bisa boot ✅
 #   Author : DikNom (Dikki Nomiarki)
@@ -22,8 +22,8 @@ log() { echo -e "${GREEN}[+]${NC} $1"; }
 
 echo -e "${BLUE}"
 echo "╔══════════════════════════════════════════╗"
-echo "║      DIKNOM OS - Build System v4         ║"
-echo "║   Debian Native live-build (Docker)      ║"
+echo "║      DIKNOM OS - Build System v5         ║"
+echo "║   Autologin Desktop - No Password      ║"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -61,7 +61,7 @@ lb config \
     --archive-areas "main contrib non-free non-free-firmware" \
     --apt-indices false \
     --apt-recommends false \
-    --bootappend-live "boot=live components username=diknom hostname=diknom-pc quiet" \
+    --bootappend-live "boot=live quiet" \
     --iso-application "DIKNOM OS" \
     --iso-publisher "DikNom" \
     --iso-volume "DIKNOM_OS" \
@@ -80,8 +80,6 @@ openbox
 obconf
 tint2
 feh
-lightdm
-lightdm-gtk-greeter
 pcmanfm
 mousepad
 xterm
@@ -127,24 +125,48 @@ log "Menyiapkan hook konfigurasi..."
 mkdir -p config/hooks/normal
 cat > config/hooks/normal/0100-diknom.hook.chroot << 'HOOK'
 #!/bin/bash
+set -e
+
+# === Buat user diknom dengan password diknom (saat BUILD) ===
+# Dibuat di build-time supaya password PASTI berfungsi
+useradd -m -s /bin/bash \
+    -G sudo,video,audio,input,netdev,plugdev diknom 2>/dev/null || true
+echo "diknom:diknom" | chpasswd
+echo "root:diknom"   | chpasswd
+echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
+chmod 0440 /etc/sudoers.d/diknom
+
+# === Hostname ===
 echo "diknom-pc" > /etc/hostname
 
-# Autologin lightdm ke desktop
-mkdir -p /etc/lightdm
-cat > /etc/lightdm/lightdm.conf << 'LIGHTDM'
-[Seat:*]
-autologin-user=diknom
-autologin-user-timeout=0
-user-session=openbox
-LIGHTDM
+# === Autologin console di tty1 sebagai diknom ===
+mkdir -p /etc/systemd/system/getty@tty1.service.d
+cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf << 'GETTY'
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin diknom --noclear %I $TERM
+GETTY
 
-# Openbox autostart
-mkdir -p /etc/xdg/openbox
-cat > /etc/xdg/openbox/autostart << 'AUTOSTART'
-tint2 &
-nm-applet &
+# === Auto-startx saat login di tty1 ===
+cat > /home/diknom/.bash_profile << 'PROFILE'
+# Auto jalankan desktop saat login di tty1
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    exec startx
+fi
+PROFILE
+
+# === .xinitrc untuk launch Openbox ===
+cat > /home/diknom/.xinitrc << 'XINIT'
+#!/bin/sh
 xsetroot -solid "#2c3e50" &
-AUTOSTART
+tint2 &
+(sleep 2 && nm-applet) &
+exec openbox-session
+XINIT
+chmod +x /home/diknom/.xinitrc
+
+# Pastikan kepemilikan file benar
+chown -R diknom:diknom /home/diknom
 HOOK
 chmod +x config/hooks/normal/0100-diknom.hook.chroot
 
@@ -170,8 +192,8 @@ echo "║           BUILD BERHASIL! 🎉             ║"
 echo "╠══════════════════════════════════════════╣"
 echo "║  File    : diknom-os-1.0-x86_64.iso"
 echo "║  Ukuran  : $SIZE"
-echo "║  Login   : diknom / live"
+echo "║  Login   : AUTO (tanpa password)"
 echo "║  Timeout : 30 detik"
-echo "║  Method  : Debian Native live-build"
+echo "║  Backup  : diknom / diknom"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"

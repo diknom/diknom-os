@@ -2,67 +2,41 @@
 
 Distro Linux ringan buatan **Dikki Nomiarki** untuk laptop RAM 1GB ke bawah.
 
-**v4** — Pakai Docker container Debian + live-build native. Dijamin bisa boot.
+**v5** — Autologin langsung ke desktop, tanpa password ribet.
 
 ---
 
-## 🔑 PENTING: Cara Update yang Benar
-
-⚠️ JANGAN klik "Re-run" di GitHub — itu pakai kode lama!
-✅ Harus PUSH kode baru biar build.sh terbaru yang jalan.
+## 🔑 Cara Update (PUSH, jangan Re-run!)
 
 ```bash
 cd ~
-rm -rf diknom-os-v4
-unzip -o diknom-os-v4.zip
-cp -rf diknom-os-v4/. diknom-os/
+cp /sdcard/Download/diknom-os-v5.zip ~/
+unzip -o diknom-os-v5.zip
+cp -rf diknom-os-v5/. diknom-os/
 cd diknom-os
 
-# WAJIB cek build.sh sudah versi v4:
+# Cek build.sh sudah v5:
 head -8 build.sh
-# Harus muncul tulisan "Build System v4"
 
 git add .
-git commit -m "v4 - Debian container build"
+git commit -m "v5 - Autologin desktop tanpa password"
 git push
 ```
 
-Setelah push, buka Actions → harus ada run BARU (bukan re-run lama).
-
 ---
 
-## ✨ Yang Baru di v4
+## Yang Baru di v5
 
-- ✅ Docker Debian container → live-build native (mirror Debian otomatis)
-- ✅ Tidak ada konflik Ubuntu/Debian lagi
-- ✅ Timeout menu boot 30 detik
-- ✅ Autologin ke desktop
-- ✅ Package manager `dnpkg`
+- Autologin langsung ke desktop Openbox (tidak ada login screen)
+- Tidak perlu password saat boot
+- Lebih ringan (lightdm dihapus, pakai startx)
+- User dibuat saat build, password PASTI jalan
 
----
+## Login (kalau perlu manual)
 
-## 💿 Test di VirtualBox
+- User: diknom  Password: diknom
+- Root: root  Password: diknom
 
-```
-New → Linux → Debian 64-bit → RAM 512MB
-Storage → pilih diknom-os-1.0-x86_64.iso
-System → Enable EFI: JANGAN dicentang
-Start ▶️
-```
+## Author
 
-Login: `diknom` / `live` (atau autologin)
-
----
-
-## 📝 Riwayat Versi
-
-- **v1** — Alpine Docker ❌ (tidak ada live-boot)
-- **v2** — Debian manual ❌ (initramfs bermasalah)
-- **v3** — live-build Ubuntu ❌ (mirror Ubuntu ≠ bookworm)
-- **v4** — Docker Debian native ✅ (semua benar)
-
----
-
-## 👤 Author
-
-**Dikki Nomiarki (DikNom)** — Nahdlatul Ulama Blitar University
+Dikki Nomiarki (DikNom) - Nahdlatul Ulama Blitar University
