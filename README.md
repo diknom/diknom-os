@@ -2,51 +2,36 @@
 
 Distro Linux buatan Dikki Nomiarki, berbasis Debian + LXDE.
 
-v8 — Desktop dipercantik + banyak aplikasi + installer ke disk.
-
-## CATATAN UKURAN
-
-- RAM tetap ringan (idle ~250MB) - app cuma makan RAM saat dibuka
-- ISO jadi BESAR (~2-2.5GB) karena banyak app dibundel
-- Build ~20-30 menit (download banyak paket)
+v9 — Fix tombol window (minimize/maximize/close) yang sebelumnya hilang.
 
 ## Cara Update (PUSH, jangan Re-run!)
 
 cd ~
-cp /sdcard/Download/diknom-os-v8.zip ~/
-unzip -o diknom-os-v8.zip
-cp -rf diknom-os-v8/. diknom-os/
+cp /sdcard/Download/diknom-os-v9.zip ~/
+unzip -o diknom-os-v9.zip
+cp -rf diknom-os-v9/. diknom-os/
 cd diknom-os
 head -6 build.sh
 git add .
-git commit -m "v8 - Banyak app + installer"
+git commit -m "v9 - Fix tombol window"
 git push
 
-## Aplikasi yang Disertakan
+## Yang Diperbaiki di v9
 
-Browser: Chromium
-Office: LibreOffice (Writer, Calc, Impress)
-Grafis: GIMP
-Media: VLC
-Programming: Python 3 + IDLE
-Editor: Mousepad (notepad)
-Kalkulator: Galculator
-Game: Chess, Sudoku
-Windows apps: Wine
-Font: Microsoft Core Fonts
-System: Task Manager (lxtask), System Monitor
-Settings: lxappearance (tema), Synaptic (package manager)
-About: Tentang DIKNOM OS
+- Tombol minimize, maximize, close SEKARANG MUNCUL di semua window
+- Konfigurasi Openbox lengkap (titleLayout NLIMC + tema Arc-Dark)
+- Tambahan shortcut keyboard:
+  - Alt+F4 = tutup window
+  - Alt+Tab = ganti window
+  - Win+E = file manager
+  - Win+T = terminal
+  - Ctrl+Alt+Kiri/Kanan = pindah desktop
+- Klik kanan di desktop = menu aplikasi
 
-## Tema
+## Semua App dari v8 Tetap Ada
 
-- Arc-Dark (tema gelap modern)
-- Papirus-Dark (icon set bagus)
-
-## Installer ke Disk
-
-- Calamares (installer grafis)
-- Ada di menu, untuk install DIKNOM OS permanen ke hardisk
+Chromium, LibreOffice, GIMP, VLC, Python, Wine, Game (chess/sudoku),
+kalkulator, notepad, MS fonts, installer Calamares, dll.
 
 ## Login
 
