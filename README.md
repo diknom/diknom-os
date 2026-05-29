@@ -1,38 +1,57 @@
 # 🐧 DIKNOM OS
 
-Distro Linux ringan buatan Dikki Nomiarki untuk laptop RAM 1GB ke bawah.
+Distro Linux buatan Dikki Nomiarki, berbasis Debian + LXDE.
 
-v7 — Desktop LENGKAP pakai LXDE (ada start menu, taskbar, icon, wallpaper).
+v8 — Desktop dipercantik + banyak aplikasi + installer ke disk.
+
+## CATATAN UKURAN
+
+- RAM tetap ringan (idle ~250MB) - app cuma makan RAM saat dibuka
+- ISO jadi BESAR (~2-2.5GB) karena banyak app dibundel
+- Build ~20-30 menit (download banyak paket)
 
 ## Cara Update (PUSH, jangan Re-run!)
 
 cd ~
-cp /sdcard/Download/diknom-os-v7.zip ~/
-unzip -o diknom-os-v7.zip
-cp -rf diknom-os-v7/. diknom-os/
+cp /sdcard/Download/diknom-os-v8.zip ~/
+unzip -o diknom-os-v8.zip
+cp -rf diknom-os-v8/. diknom-os/
 cd diknom-os
 head -6 build.sh
 git add .
-git commit -m "v7 - Desktop LXDE lengkap"
+git commit -m "v8 - Banyak app + installer"
 git push
 
-## Yang Baru di v7
+## Aplikasi yang Disertakan
 
-- Ganti Openbox polos -> LXDE (desktop lengkap out-of-the-box)
-- Ada start menu, taskbar, system tray, jam, file manager
-- Wallpaper biru DIKNOM (bukan hitam kosong)
-- Autologin ke desktop LXDE
-- Tetap ringan untuk RAM 1GB (idle ~220MB)
+Browser: Chromium
+Office: LibreOffice (Writer, Calc, Impress)
+Grafis: GIMP
+Media: VLC
+Programming: Python 3 + IDLE
+Editor: Mousepad (notepad)
+Kalkulator: Galculator
+Game: Chess, Sudoku
+Windows apps: Wine
+Font: Microsoft Core Fonts
+System: Task Manager (lxtask), System Monitor
+Settings: lxappearance (tema), Synaptic (package manager)
+About: Tentang DIKNOM OS
+
+## Tema
+
+- Arc-Dark (tema gelap modern)
+- Papirus-Dark (icon set bagus)
+
+## Installer ke Disk
+
+- Calamares (installer grafis)
+- Ada di menu, untuk install DIKNOM OS permanen ke hardisk
 
 ## Login
 
-- Autologin ke desktop, atau manual:
+- Autologin ke desktop, atau:
 - User: diknom  Password: diknom
 
-## Riwayat
-
-- v6 — Openbox jalan tapi terlalu polos (cuma panel kosong)
-- v7 — LXDE, desktop lengkap dengan menu & icon
-
 ## Author
-Dikki Nomiarki (DikNom)
+Dikki Nomiarki (DikNom) - Nahdlatul Ulama Blitar University

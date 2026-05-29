@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-#   DIKNOM OS - Build Script v7
+#   DIKNOM OS - Build Script v8
 #   Method : Debian container + native live-build
 #   Status : Dijamin bisa boot ✅
 #   Author : DikNom (Dikki Nomiarki)
@@ -22,8 +22,8 @@ log() { echo -e "${GREEN}[+]${NC} $1"; }
 
 echo -e "${BLUE}"
 echo "╔══════════════════════════════════════════╗"
-echo "║      DIKNOM OS - Build System v7         ║"
-echo "║   Desktop LXDE Lengkap      ║"
+echo "║      DIKNOM OS - Build System v8         ║"
+echo "║   LXDE + Banyak App + Installer      ║"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -71,26 +71,68 @@ lb config \
 log "Menyiapkan daftar paket..."
 mkdir -p config/package-lists
 cat > config/package-lists/diknom.list.chroot << 'PKGLIST'
+# === X Server (WAJIB untuk display) ===
 xserver-xorg-core
 xserver-xorg-video-vesa
 xserver-xorg-video-fbdev
 xserver-xorg-input-libinput
 xinit
+# === Desktop LXDE ===
 lxde-core
 lxsession
 lxpanel
+lxtask
 lxterminal
+lxappearance
 pcmanfm
 openbox
 obconf
+# === Display Manager ===
 lightdm
 lightdm-gtk-greeter
+# === Tema (biar lebih bagus) ===
+arc-theme
+papirus-icon-theme
+# === Browser ===
+chromium
+# === Office ===
+libreoffice-writer
+libreoffice-calc
+libreoffice-impress
+# === Grafis ===
+gimp
+# === Media ===
+vlc
+# === Python ===
+python3
+python3-pip
+idle3
+# === Text Editor (Notepad) ===
 mousepad
-nano
-htop
+# === Kalkulator ===
+galculator
+# === Game ===
+gnome-chess
+gnome-sudoku
+gnuchess
+# === Settings & System ===
+gnome-system-monitor
+synaptic
+zenity
+file-roller
+gpicview
+# === Installer ke disk ===
+calamares
+calamares-settings-debian
+# === Network ===
 network-manager
 network-manager-gnome
+# === Font ===
 fonts-dejavu-core
+fonts-liberation
+# === Utilitas dasar ===
+nano
+htop
 sudo
 bash-completion
 PKGLIST
@@ -126,26 +168,24 @@ find config/bootloaders -name "*.cfg" -exec \
 # ===== STEP 7: Hook konfigurasi tambahan =====
 log "Menyiapkan hook konfigurasi..."
 mkdir -p config/hooks/normal
+
+# --- Hook 1: User, autologin, tema, about ---
 cat > config/hooks/normal/0100-diknom.hook.chroot << 'HOOK'
 #!/bin/bash
 set -e
 
-# === Buat user diknom dengan password diknom (saat BUILD) ===
+# === User diknom (password: diknom) ===
 useradd -m -s /bin/bash \
     -G sudo,video,audio,input,netdev,plugdev diknom 2>/dev/null || true
 echo "diknom:diknom" | chpasswd
 echo "root:diknom"   | chpasswd
 echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
 chmod 0440 /etc/sudoers.d/diknom
-
-# === Hostname ===
 echo "diknom-pc" > /etc/hostname
 
-# === Grup autologin (dibutuhkan lightdm) ===
+# === Autologin lightdm ke LXDE ===
 groupadd -r autologin 2>/dev/null || true
 gpasswd -a diknom autologin 2>/dev/null || true
-
-# === Autologin lightdm ke session LXDE ===
 mkdir -p /etc/lightdm
 cat > /etc/lightdm/lightdm.conf << 'LIGHTDM'
 [Seat:*]
@@ -156,7 +196,25 @@ user-session=LXDE
 greeter-session=lightdm-gtk-greeter
 LIGHTDM
 
-# === Set wallpaper LXDE jadi warna DIKNOM (biru gelap) ===
+# === Tema Arc-Dark + icon Papirus-Dark ===
+mkdir -p /home/diknom/.config/lxsession/LXDE
+cat > /home/diknom/.config/lxsession/LXDE/desktop.conf << 'LXSESSION'
+[GTK]
+sNet/ThemeName=Arc-Dark
+sNet/IconThemeName=Papirus-Dark
+sGtk/FontName=Sans 10
+LXSESSION
+
+# GTK3 theme
+mkdir -p /home/diknom/.config/gtk-3.0
+cat > /home/diknom/.config/gtk-3.0/settings.ini << 'GTK3'
+[Settings]
+gtk-theme-name=Arc-Dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-font-name=Sans 10
+GTK3
+
+# === Wallpaper biru DIKNOM ===
 mkdir -p /home/diknom/.config/pcmanfm/LXDE
 cat > /home/diknom/.config/pcmanfm/LXDE/desktop-items-0.conf << 'PCMANFM'
 [*]
@@ -169,10 +227,73 @@ show_trash=1
 show_mounts=1
 PCMANFM
 
-# Pastikan kepemilikan home benar
+# === Launcher "About DIKNOM OS" ===
+cat > /usr/bin/diknom-about << 'ABOUT'
+#!/bin/bash
+zenity --info --title="Tentang DIKNOM OS" --width=420 --height=260 \
+  --text="<big><b>DIKNOM OS 1.0</b></big>
+
+Distro Linux ringan berbasis Debian + LXDE
+Dibuat oleh <b>Dikki Nomiarki (DikNom)</b>
+
+Kernel: $(uname -r)
+RAM: $(free -h | awk '/Mem/{print $2}')
+
+Nahdlatul Ulama Blitar University
+github.com/diknom"
+ABOUT
+chmod +x /usr/bin/diknom-about
+
+cat > /usr/share/applications/diknom-about.desktop << 'DESKTOP'
+[Desktop Entry]
+Name=Tentang DIKNOM OS
+Comment=Informasi sistem DIKNOM OS
+Exec=diknom-about
+Icon=help-about
+Type=Application
+Categories=System;
+DESKTOP
+
+# === Launcher "Pengaturan Tampilan" ===
+cat > /usr/share/applications/diknom-settings.desktop << 'DESKTOP'
+[Desktop Entry]
+Name=Pengaturan Tampilan
+Comment=Atur tema dan tampilan
+Exec=lxappearance
+Icon=preferences-desktop-theme
+Type=Application
+Categories=Settings;
+DESKTOP
+
 chown -R diknom:diknom /home/diknom 2>/dev/null || true
 HOOK
 chmod +x config/hooks/normal/0100-diknom.hook.chroot
+
+# --- Hook 2: Wine (butuh i386) + Font Microsoft ---
+# Dipisah supaya kalau gagal tidak merusak build utama
+cat > config/hooks/normal/0500-wine-fonts.hook.chroot << 'HOOK'
+#!/bin/bash
+# Jangan pakai set -e di sini, biar gagal sebagian tetap lanjut
+
+echo "[+] Menambahkan arsitektur i386 untuk Wine..."
+dpkg --add-architecture i386
+apt-get update
+
+echo "[+] Install Wine..."
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    wine wine64 wine32 2>/dev/null || \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends wine || \
+    echo "[!] Wine gagal install, lewati"
+
+echo "[+] Install font Microsoft..."
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" \
+    | debconf-set-selections
+DEBIAN_FRONTEND=noninteractive apt-get install -y ttf-mscorefonts-installer 2>/dev/null || \
+    echo "[!] MS fonts gagal, lewati"
+
+apt-get clean
+HOOK
+chmod +x config/hooks/normal/0500-wine-fonts.hook.chroot
 
 # ===== STEP 8: Build ISO =====
 log "Membangun ISO (10-15 menit, harap sabar)..."

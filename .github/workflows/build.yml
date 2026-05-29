@@ -13,6 +13,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Bersihkan disk space (untuk build besar)
+        run: |
+          echo "Disk sebelum dibersihkan:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune --all --force || true
+          echo "Disk setelah dibersihkan:"
+          df -h /
+
       - name: Build DIKNOM OS di Debian container
         run: |
           docker run --privileged --rm \
