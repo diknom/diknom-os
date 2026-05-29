@@ -1,42 +1,39 @@
 # 🐧 DIKNOM OS
 
-Distro Linux ringan buatan **Dikki Nomiarki** untuk laptop RAM 1GB ke bawah.
+Distro Linux ringan buatan Dikki Nomiarki untuk laptop RAM 1GB ke bawah.
 
-**v5** — Autologin langsung ke desktop, tanpa password ribet.
+v6 — Berbasis v4 yang terbukti boot, ditambah user fix + autologin.
 
----
+## Cara Update (PUSH, jangan Re-run!)
 
-## 🔑 Cara Update (PUSH, jangan Re-run!)
-
-```bash
 cd ~
-cp /sdcard/Download/diknom-os-v5.zip ~/
-unzip -o diknom-os-v5.zip
-cp -rf diknom-os-v5/. diknom-os/
+cp /sdcard/Download/diknom-os-v6.zip ~/
+unzip -o diknom-os-v6.zip
+cp -rf diknom-os-v6/. diknom-os/
 cd diknom-os
-
-# Cek build.sh sudah v5:
-head -8 build.sh
-
+head -6 build.sh
 git add .
-git commit -m "v5 - Autologin desktop tanpa password"
+git commit -m "v6 - User fix + autologin"
 git push
-```
 
----
+## Yang Baru di v6 (vs v4)
 
-## Yang Baru di v5
+- Tetap pakai lightdm + components (yang bikin v4 berhasil boot)
+- TAMBAH: user diknom dibuat saat build (password PASTI jalan)
+- TAMBAH: autologin lightdm ke diknom
+- Perubahan minimal dari v4 = risiko kecil
 
-- Autologin langsung ke desktop Openbox (tidak ada login screen)
-- Tidak perlu password saat boot
-- Lebih ringan (lightdm dihapus, pakai startx)
-- User dibuat saat build, password PASTI jalan
+## Login
 
-## Login (kalau perlu manual)
-
+- Autologin ke desktop, atau manual:
 - User: diknom  Password: diknom
 - Root: root  Password: diknom
 
-## Author
+## Riwayat
 
-Dikki Nomiarki (DikNom) - Nahdlatul Ulama Blitar University
+- v4 — boot ke login screen (X jalan) tapi password gagal
+- v5 — ganti startx, malah blank (terlalu banyak perubahan)
+- v6 — balik ke v4 + cuma fix user/login
+
+## Author
+Dikki Nomiarki (DikNom)
