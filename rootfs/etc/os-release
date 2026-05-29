@@ -1,0 +1,11 @@
+NAME="DIKNOM OS"
+VERSION="1.0"
+ID=diknom
+ID_LIKE=alpine
+PRETTY_NAME="DIKNOM OS 1.0 (Blitar Edition)"
+VERSION_ID="1.0"
+HOME_URL="https://github.com/diknomiarki"
+SUPPORT_URL="https://github.com/diknomiarki/diknom-os/issues"
+BUG_REPORT_URL="https://github.com/diknomiarki/diknom-os/issues"
+LOGO="diknom"
+ANSI_COLOR="1;34"

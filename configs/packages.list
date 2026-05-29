@@ -1,0 +1,46 @@
+# ============================================
+#   DIKNOM OS - Daftar Paket Default
+#   Tambah/hapus sesuai kebutuhan
+# ============================================
+
+# === CORE SISTEM ===
+bash
+bash-completion
+openrc
+shadow
+sudo
+util-linux
+e2fsprogs
+
+# === DESKTOP ===
+xorg-server
+xf86-video-vesa
+xf86-video-fbdev
+xf86-input-libinput
+xinit
+openbox
+tint2
+feh
+lightdm
+lightdm-gtk-greeter
+
+# === APLIKASI ===
+pcmanfm
+mousepad
+xterm
+nano
+htop
+neofetch
+
+# === JARINGAN ===
+networkmanager
+networkmanager-wifi
+wget
+curl
+
+# === FONT ===
+ttf-dejavu
+ttf-liberation
+
+# === KERNEL ===
+linux-lts

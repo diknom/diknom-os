@@ -1,0 +1,12 @@
+# Build output
+*.iso
+/build/
+/tmp/
+
+# Cache
+*.cache
+*.tmp
+.DS_Store
+
+# Log
+*.log

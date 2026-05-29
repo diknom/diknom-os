@@ -1,0 +1,191 @@
+#!/bin/bash
+# ============================================
+#   help - Pusat Bantuan DIKNOM OS
+# ============================================
+
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+TOPIK="$1"
+
+# ===== HELP UTAMA =====
+help_utama() {
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}        ${BOLD}DIKNOM OS 1.0 — Pusat Bantuan${NC}            ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${BOLD}  COMMAND UTAMA:${NC}"
+    echo -e "  ${GREEN}dnpkg${NC}       Kelola aplikasi & paket"
+    echo -e "  ${GREEN}dnfetch${NC}     Tampilkan info sistem"
+    echo -e "  ${GREEN}dn-update${NC}   Update seluruh sistem"
+    echo -e "  ${GREEN}help${NC}        Tampilkan bantuan ini"
+    echo ""
+    echo -e "${BOLD}  BANTUAN PER TOPIK:${NC}"
+    echo -e "  help ${CYAN}paket${NC}      Cara install/hapus aplikasi"
+    echo -e "  help ${CYAN}jaringan${NC}   Cara setting wifi & internet"
+    echo -e "  help ${CYAN}file${NC}       Cara kelola file & folder"
+    echo -e "  help ${CYAN}sistem${NC}     Info & perawatan sistem"
+    echo -e "  help ${CYAN}dnpkg${NC}      Panduan lengkap dnpkg"
+    echo ""
+    echo -e "${BOLD}  PINTASAN KEYBOARD:${NC}"
+    echo "  Ctrl+C       Hentikan perintah yang berjalan"
+    echo "  Ctrl+L       Bersihkan layar (sama dengan: cls)"
+    echo "  Ctrl+D       Keluar dari terminal"
+    echo "  Tab          Auto-complete nama file/perintah"
+    echo "  ↑ / ↓        Navigasi riwayat perintah"
+    echo ""
+    echo -e "${BOLD}  ALIAS CEPAT:${NC}"
+    echo "  h / ?        → help"
+    echo "  bantuan      → help"
+    echo "  cls          → clear"
+    echo "  ll           → ls -lah"
+    echo "  sysinfo      → dnfetch"
+    echo ""
+    echo -e "  ${YELLOW}Tip:${NC} Ketik nama perintah + --help untuk info lebih lanjut"
+    echo -e "  ${YELLOW}Tip:${NC} Ketik 'dnpkg store' untuk melihat app tersedia"
+    echo ""
+}
+
+# ===== HELP TOPIK: PAKET =====
+help_paket() {
+    echo ""
+    echo -e "${BOLD}  📦 CARA KELOLA APLIKASI${NC}"
+    echo ""
+    echo -e "  ${CYAN}Install aplikasi:${NC}"
+    echo "    dnpkg install firefox"
+    echo "    dnpkg install vlc mpv    ← install banyak sekaligus"
+    echo ""
+    echo -e "  ${CYAN}Hapus aplikasi:${NC}"
+    echo "    dnpkg remove firefox"
+    echo ""
+    echo -e "  ${CYAN}Update semua aplikasi:${NC}"
+    echo "    dnpkg update"
+    echo ""
+    echo -e "  ${CYAN}Cari aplikasi:${NC}"
+    echo "    dnpkg search browser"
+    echo "    dnpkg search musik"
+    echo ""
+    echo -e "  ${CYAN}Lihat semua yang terinstall:${NC}"
+    echo "    dnpkg list"
+    echo ""
+    echo -e "  ${CYAN}Buka toko aplikasi:${NC}"
+    echo "    dnpkg store"
+    echo ""
+}
+
+# ===== HELP TOPIK: JARINGAN =====
+help_jaringan() {
+    echo ""
+    echo -e "${BOLD}  🌐 CARA SETTING JARINGAN${NC}"
+    echo ""
+    echo -e "  ${CYAN}Lihat koneksi aktif:${NC}"
+    echo "    nmcli connection show"
+    echo ""
+    echo -e "  ${CYAN}Cari wifi tersedia:${NC}"
+    echo "    nmcli device wifi list"
+    echo ""
+    echo -e "  ${CYAN}Connect ke wifi:${NC}"
+    echo "    nmcli device wifi connect 'NamaWifi' password 'passwordnya'"
+    echo ""
+    echo -e "  ${CYAN}Cek IP address:${NC}"
+    echo "    ip addr"
+    echo "    hostname -I"
+    echo ""
+    echo -e "  ${CYAN}Cek koneksi internet:${NC}"
+    echo "    ping google.com"
+    echo "    myip          ← tampil IP publik"
+    echo ""
+}
+
+# ===== HELP TOPIK: FILE =====
+help_file() {
+    echo ""
+    echo -e "${BOLD}  📁 CARA KELOLA FILE & FOLDER${NC}"
+    echo ""
+    echo -e "  ${CYAN}Lihat isi folder:${NC}"
+    echo "    ls            ← sederhana"
+    echo "    ll            ← detail lengkap"
+    echo ""
+    echo -e "  ${CYAN}Pindah folder:${NC}"
+    echo "    cd NamaFolder"
+    echo "    cd ..         ← naik satu level"
+    echo "    cd ~          ← ke folder home"
+    echo ""
+    echo -e "  ${CYAN}Buat folder baru:${NC}"
+    echo "    mkdir NamaFolder"
+    echo ""
+    echo -e "  ${CYAN}Copy file:${NC}"
+    echo "    cp file.txt /tujuan/"
+    echo ""
+    echo -e "  ${CYAN}Pindah/rename file:${NC}"
+    echo "    mv file.txt /tujuan/"
+    echo "    mv nama-lama.txt nama-baru.txt"
+    echo ""
+    echo -e "  ${CYAN}Hapus file:${NC}"
+    echo "    rm file.txt"
+    echo "    rm -rf NamaFolder  ← hapus folder beserta isinya"
+    echo ""
+    echo -e "  ${CYAN}Edit file teks:${NC}"
+    echo "    nano namafile.txt"
+    echo ""
+}
+
+# ===== HELP TOPIK: SISTEM =====
+help_sistem() {
+    echo ""
+    echo -e "${BOLD}  ⚙️  INFO & PERAWATAN SISTEM${NC}"
+    echo ""
+    echo -e "  ${CYAN}Lihat info sistem:${NC}"
+    echo "    dnfetch       ← ringkasan sistem"
+    echo "    htop          ← monitor proses realtime"
+    echo "    free -h       ← penggunaan RAM"
+    echo "    df -h         ← penggunaan disk"
+    echo ""
+    echo -e "  ${CYAN}Update sistem:${NC}"
+    echo "    dn-update"
+    echo "    dnpkg update"
+    echo ""
+    echo -e "  ${CYAN}Cek kesehatan sistem:${NC}"
+    echo "    dnpkg doctor"
+    echo ""
+    echo -e "  ${CYAN}Reboot & shutdown:${NC}"
+    echo "    sudo reboot"
+    echo "    sudo poweroff"
+    echo ""
+    echo -e "  ${CYAN}Lihat proses berjalan:${NC}"
+    echo "    ps aux"
+    echo "    htop"
+    echo ""
+    echo -e "  ${CYAN}Matikan proses:${NC}"
+    echo "    kill [PID]"
+    echo "    killall namaproses"
+    echo ""
+}
+
+# ===== HELP TOPIK: DNPKG =====
+help_dnpkg() {
+    dnpkg help
+}
+
+# ===== ROUTER TOPIK =====
+case "$TOPIK" in
+    paket|install|aplikasi|app)
+        help_paket ;;
+    jaringan|wifi|internet|network)
+        help_jaringan ;;
+    file|folder|direktori|files)
+        help_file ;;
+    sistem|system|sysinfo|info)
+        help_sistem ;;
+    dnpkg|pkg|paketmanager)
+        help_dnpkg ;;
+    "")
+        help_utama ;;
+    *)
+        help_utama ;;
+esac

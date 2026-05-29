@@ -1,0 +1,41 @@
+name: Build DIKNOM OS ISO
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            squashfs-tools xorriso \
+            grub-pc-bin grub-efi-amd64-bin \
+            mtools wget
+
+      - name: Build DIKNOM OS
+        run: |
+          chmod +x build.sh
+          sudo bash build.sh
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: diknom-os-iso
+          path: diknom-os-1.0-x86_64.iso
+          retention-days: 30
+
+      - name: Show ISO info
+        run: |
+          echo "=============================="
+          echo "  DIKNOM OS build selesai!"
+          echo "=============================="
+          ls -lh diknom-os-1.0-x86_64.iso

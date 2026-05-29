@@ -1,0 +1,336 @@
+#!/bin/bash
+# ============================================
+#   dnpkg - DIKNOM Package Manager
+#   Versi  : 1.0
+#   Author : DikNom (Dikki Nomiarki)
+# ============================================
+
+# Warna
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+DNPKG_VERSION="1.0"
+DNPKG_LOG="/var/log/dnpkg-history.log"
+PERINTAH="$1"
+PAKET="$2"
+
+# ===== FUNGSI HEADER =====
+header() {
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}  ${BOLD}dnpkg${NC} - DIKNOM Package Manager v${DNPKG_VERSION}  ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+# ===== FUNGSI LOG =====
+catat_log() {
+    mkdir -p /var/log
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$DNPKG_LOG"
+}
+
+# ===== FUNGSI CEK ROOT =====
+cek_root() {
+    if [ "$(id -u)" != "0" ]; then
+        echo -e "${YELLOW}[!]${NC} Butuh akses sudo untuk perintah ini."
+        exec sudo "$0" "$@"
+    fi
+}
+
+# ===== FUNGSI INSTALL =====
+cmd_install() {
+    [ -z "$PAKET" ] && { echo -e "${RED}[✗]${NC} Masukkan nama paket."; echo "    Contoh: dnpkg install firefox"; exit 1; }
+    header
+    echo -e "${CYAN}[→]${NC} Mencari paket: ${BOLD}$PAKET${NC}"
+    echo ""
+    cek_root
+    if apk add "$PAKET"; then
+        echo ""
+        echo -e "${GREEN}[✓]${NC} ${BOLD}$PAKET${NC} berhasil diinstall!"
+        catat_log "INSTALL: $PAKET"
+    else
+        echo ""
+        echo -e "${RED}[✗]${NC} Gagal install ${BOLD}$PAKET${NC}."
+        echo "     Coba: dnpkg search $PAKET"
+        catat_log "GAGAL INSTALL: $PAKET"
+        exit 1
+    fi
+}
+
+# ===== FUNGSI REMOVE =====
+cmd_remove() {
+    [ -z "$PAKET" ] && { echo -e "${RED}[✗]${NC} Masukkan nama paket."; echo "    Contoh: dnpkg remove firefox"; exit 1; }
+    header
+    echo -e "${YELLOW}[→]${NC} Menghapus paket: ${BOLD}$PAKET${NC}"
+    echo ""
+    cek_root
+    if apk del "$PAKET"; then
+        echo ""
+        echo -e "${GREEN}[✓]${NC} ${BOLD}$PAKET${NC} berhasil dihapus."
+        catat_log "REMOVE: $PAKET"
+    else
+        echo ""
+        echo -e "${RED}[✗]${NC} Gagal menghapus ${BOLD}$PAKET${NC}."
+        exit 1
+    fi
+}
+
+# ===== FUNGSI UPDATE =====
+cmd_update() {
+    header
+    echo -e "${CYAN}[→]${NC} Memperbarui semua paket sistem..."
+    echo ""
+    cek_root
+    apk update && apk upgrade
+    echo ""
+    echo -e "${GREEN}[✓]${NC} Sistem berhasil diperbarui!"
+    catat_log "UPDATE: sistem diperbarui"
+}
+
+# ===== FUNGSI SEARCH =====
+cmd_search() {
+    [ -z "$PAKET" ] && { echo -e "${RED}[✗]${NC} Masukkan kata kunci."; echo "    Contoh: dnpkg search browser"; exit 1; }
+    header
+    echo -e "${CYAN}[→]${NC} Mencari: ${BOLD}$PAKET${NC}"
+    echo ""
+    apk search "$PAKET"
+}
+
+# ===== FUNGSI INFO =====
+cmd_info() {
+    [ -z "$PAKET" ] && { echo -e "${RED}[✗]${NC} Masukkan nama paket."; echo "    Contoh: dnpkg info firefox"; exit 1; }
+    header
+    echo -e "${CYAN}[→]${NC} Info paket: ${BOLD}$PAKET${NC}"
+    echo ""
+    apk info -a "$PAKET"
+}
+
+# ===== FUNGSI LIST =====
+cmd_list() {
+    header
+    echo -e "${CYAN}[→]${NC} Paket yang terinstall:"
+    echo ""
+    apk list --installed | sort
+}
+
+# ===== FUNGSI AUTOREMOVE =====
+cmd_autoremove() {
+    header
+    echo -e "${YELLOW}[→]${NC} Menghapus paket yang tidak diperlukan..."
+    echo ""
+    cek_root
+    apk autoremove
+    echo ""
+    echo -e "${GREEN}[✓]${NC} Selesai!"
+    catat_log "AUTOREMOVE: paket tidak terpakai dihapus"
+}
+
+# ===== FUNGSI CLEAN =====
+cmd_clean() {
+    header
+    echo -e "${YELLOW}[→]${NC} Membersihkan cache paket..."
+    echo ""
+    cek_root
+    apk cache clean
+    rm -rf /var/cache/apk/*
+    echo -e "${GREEN}[✓]${NC} Cache berhasil dibersihkan!"
+    catat_log "CLEAN: cache dibersihkan"
+}
+
+# ===== FUNGSI HISTORY =====
+cmd_history() {
+    header
+    echo -e "${CYAN}[→]${NC} Riwayat penggunaan dnpkg:"
+    echo ""
+    if [ -f "$DNPKG_LOG" ]; then
+        tail -30 "$DNPKG_LOG"
+    else
+        echo "  Belum ada riwayat."
+    fi
+}
+
+# ===== FUNGSI DOCTOR =====
+cmd_doctor() {
+    header
+    echo -e "${CYAN}[→]${NC} Memeriksa kesehatan sistem..."
+    echo ""
+
+    # Cek koneksi internet
+    if ping -c 1 google.com &>/dev/null 2>&1; then
+        echo -e "  ${GREEN}[✓]${NC} Koneksi internet: OK"
+    else
+        echo -e "  ${RED}[✗]${NC} Koneksi internet: TIDAK ADA"
+    fi
+
+    # Cek ruang disk
+    DISK_FREE=$(df -h / | awk 'NR==2{print $4}')
+    echo -e "  ${GREEN}[✓]${NC} Ruang disk tersisa: $DISK_FREE"
+
+    # Cek RAM
+    RAM_FREE=$(free -h | awk '/Mem/{print $4}')
+    echo -e "  ${GREEN}[✓]${NC} RAM tersisa: $RAM_FREE"
+
+    # Cek paket rusak
+    echo -e "  ${CYAN}[→]${NC} Memeriksa paket..."
+    if apk verify &>/dev/null 2>&1; then
+        echo -e "  ${GREEN}[✓]${NC} Semua paket dalam kondisi baik"
+    else
+        echo -e "  ${YELLOW}[!]${NC} Ada paket bermasalah. Jalankan: dnpkg update"
+    fi
+
+    echo ""
+    echo -e "${GREEN}[✓]${NC} Pemeriksaan selesai!"
+}
+
+# ===== FUNGSI SIZE =====
+cmd_size() {
+    [ -z "$PAKET" ] && { echo -e "${RED}[✗]${NC} Masukkan nama paket."; exit 1; }
+    header
+    echo -e "${CYAN}[→]${NC} Ukuran paket: ${BOLD}$PAKET${NC}"
+    echo ""
+    apk info -s "$PAKET"
+}
+
+# ===== FUNGSI BACKUP =====
+cmd_backup() {
+    header
+    BACKUP_FILE="$HOME/dnpkg-backup-$(date '+%Y%m%d').txt"
+    echo -e "${CYAN}[→]${NC} Menyimpan daftar paket ke: $BACKUP_FILE"
+    apk list --installed | awk '{print $1}' | sed 's/-[0-9].*//' > "$BACKUP_FILE"
+    echo -e "${GREEN}[✓]${NC} Backup disimpan: $BACKUP_FILE"
+    catat_log "BACKUP: disimpan ke $BACKUP_FILE"
+}
+
+# ===== FUNGSI STORE =====
+cmd_store() {
+    header
+    echo -e "${BOLD}  DIKNOM APP STORE 🛍️${NC}"
+    echo ""
+    echo "  ┌─────────────────────────────────────┐"
+    echo "  │  [1] Browser      - Falkon, Firefox  │"
+    echo "  │  [2] Office       - LibreOffice       │"
+    echo "  │  [3] Media        - VLC, MPV          │"
+    echo "  │  [4] Dev Tools    - Geany, VSCode     │"
+    echo "  │  [5] Grafis       - GIMP, Inkscape    │"
+    echo "  │  [6] Terminal     - Alacritty         │"
+    echo "  │  [0] Keluar                           │"
+    echo "  └─────────────────────────────────────┘"
+    echo ""
+    read -p "  Pilih kategori: " PILIHAN
+
+    case "$PILIHAN" in
+        1) echo ""; echo "  Paket browser:"; apk search -q browser | head -10 ;;
+        2) echo ""; echo "  Paket office:"; apk search -q libreoffice | head -10 ;;
+        3) echo ""; echo "  Paket media:"; apk search -q "vlc\|mpv" | head -10 ;;
+        4) echo ""; echo "  Paket dev:"; apk search -q "geany\|code" | head -10 ;;
+        5) echo ""; echo "  Paket grafis:"; apk search -q "gimp\|inkscape" | head -10 ;;
+        6) echo ""; echo "  Paket terminal:"; apk search -q "alacritty\|terminal" | head -10 ;;
+        0) echo "  Sampai jumpa!"; exit 0 ;;
+        *) echo -e "  ${RED}Pilihan tidak valid.${NC}" ;;
+    esac
+}
+
+# ===== FUNGSI HELP =====
+cmd_help() {
+    echo ""
+    echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}     ${BOLD}dnpkg${NC} — DIKNOM Package Manager v${DNPKG_VERSION}      ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}         DIKNOM OS 1.0 - Blitar Edition       ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${BOLD}  PENGGUNAAN:${NC}"
+    echo "    dnpkg [perintah] [nama-paket]"
+    echo ""
+    echo -e "${BOLD}  PERINTAH:${NC}"
+    echo -e "    ${GREEN}install${NC}  <paket>   Install paket baru"
+    echo -e "    ${RED}remove${NC}   <paket>   Hapus paket"
+    echo -e "    ${CYAN}update${NC}             Update semua paket"
+    echo -e "    ${CYAN}search${NC}   <paket>   Cari paket tersedia"
+    echo -e "    ${CYAN}info${NC}     <paket>   Info detail paket"
+    echo -e "    ${CYAN}size${NC}     <paket>   Ukuran paket"
+    echo -e "    ${CYAN}list${NC}               Daftar paket terinstall"
+    echo -e "    ${YELLOW}autoremove${NC}         Hapus paket tidak terpakai"
+    echo -e "    ${YELLOW}clean${NC}              Bersihkan cache"
+    echo -e "    ${CYAN}history${NC}            Riwayat install/remove"
+    echo -e "    ${CYAN}backup${NC}             Backup daftar paket"
+    echo -e "    ${CYAN}doctor${NC}             Cek kesehatan sistem"
+    echo -e "    ${CYAN}store${NC}              Buka toko aplikasi"
+    echo -e "    ${CYAN}help${NC}               Tampilkan bantuan ini"
+    echo ""
+    echo -e "${BOLD}  CONTOH:${NC}"
+    echo "    dnpkg install firefox"
+    echo "    dnpkg remove vlc"
+    echo "    dnpkg search browser"
+    echo "    dnpkg update"
+    echo ""
+    echo -e "${BOLD}  INFO:${NC}"
+    echo "    Versi   : dnpkg $DNPKG_VERSION"
+    echo "    Dibuat  : DikNom — DIKNOM OS Project"
+    echo "    GitHub  : github.com/diknomiarki/diknom-os"
+    echo ""
+}
+
+# ===== HELP PER PERINTAH =====
+cmd_help_detail() {
+    case "$PAKET" in
+        install)
+            echo ""
+            echo -e "${BOLD}  INSTALL — Memasang paket baru${NC}"
+            echo ""
+            echo "  PENGGUNAAN:"
+            echo "    dnpkg install <nama-paket>"
+            echo "    dnpkg install <paket1> <paket2>  ← install banyak sekaligus"
+            echo ""
+            echo "  CONTOH:"
+            echo "    dnpkg install firefox"
+            echo "    dnpkg install vlc mpv gimp"
+            echo ""
+            ;;
+        remove)
+            echo ""
+            echo -e "${BOLD}  REMOVE — Menghapus paket${NC}"
+            echo ""
+            echo "  PENGGUNAAN:"
+            echo "    dnpkg remove <nama-paket>"
+            echo ""
+            echo "  CONTOH:"
+            echo "    dnpkg remove firefox"
+            echo ""
+            ;;
+        *)
+            cmd_help
+            ;;
+    esac
+}
+
+# ===== MAIN ROUTER =====
+case "$PERINTAH" in
+    install)       cmd_install ;;
+    remove|delete) cmd_remove ;;
+    update|upgrade)cmd_update ;;
+    search|find)   cmd_search ;;
+    info|show)     cmd_info ;;
+    list|ls)       cmd_list ;;
+    autoremove)    cmd_autoremove ;;
+    clean|clear)   cmd_clean ;;
+    history|log)   cmd_history ;;
+    doctor|check)  cmd_doctor ;;
+    size)          cmd_size ;;
+    backup)        cmd_backup ;;
+    store|app)     cmd_store ;;
+    help|--help|-h)
+        if [ -n "$PAKET" ]; then cmd_help_detail
+        else cmd_help; fi ;;
+    "")            cmd_help ;;
+    *)
+        echo ""
+        echo -e "  ${RED}[✗]${NC} Perintah '$PERINTAH' tidak dikenal."
+        echo "       Ketik 'dnpkg help' untuk bantuan."
+        echo ""
+        exit 1 ;;
+esac
