@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-#   DIKNOM OS - Build Script v6
+#   DIKNOM OS - Build Script v7
 #   Method : Debian container + native live-build
 #   Status : Dijamin bisa boot ✅
 #   Author : DikNom (Dikki Nomiarki)
@@ -22,8 +22,8 @@ log() { echo -e "${GREEN}[+]${NC} $1"; }
 
 echo -e "${BLUE}"
 echo "╔══════════════════════════════════════════╗"
-echo "║      DIKNOM OS - Build System v6         ║"
-echo "║   User Fix + Autologin lightdm      ║"
+echo "║      DIKNOM OS - Build System v7         ║"
+echo "║   Desktop LXDE Lengkap      ║"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -76,15 +76,16 @@ xserver-xorg-video-vesa
 xserver-xorg-video-fbdev
 xserver-xorg-input-libinput
 xinit
+lxde-core
+lxsession
+lxpanel
+lxterminal
+pcmanfm
 openbox
 obconf
-tint2
-feh
 lightdm
 lightdm-gtk-greeter
-pcmanfm
 mousepad
-xterm
 nano
 htop
 network-manager
@@ -130,7 +131,6 @@ cat > config/hooks/normal/0100-diknom.hook.chroot << 'HOOK'
 set -e
 
 # === Buat user diknom dengan password diknom (saat BUILD) ===
-# Dibuat build-time supaya password PASTI berfungsi, tidak tergantung live-config
 useradd -m -s /bin/bash \
     -G sudo,video,audio,input,netdev,plugdev diknom 2>/dev/null || true
 echo "diknom:diknom" | chpasswd
@@ -141,28 +141,33 @@ chmod 0440 /etc/sudoers.d/diknom
 # === Hostname ===
 echo "diknom-pc" > /etc/hostname
 
-# === Grup autologin (dibutuhkan lightdm untuk autologin) ===
+# === Grup autologin (dibutuhkan lightdm) ===
 groupadd -r autologin 2>/dev/null || true
 gpasswd -a diknom autologin 2>/dev/null || true
 
-# === Autologin lightdm ke user diknom ===
+# === Autologin lightdm ke session LXDE ===
 mkdir -p /etc/lightdm
 cat > /etc/lightdm/lightdm.conf << 'LIGHTDM'
 [Seat:*]
 autologin-user=diknom
 autologin-user-timeout=0
-autologin-session=openbox
-user-session=openbox
+autologin-session=LXDE
+user-session=LXDE
 greeter-session=lightdm-gtk-greeter
 LIGHTDM
 
-# === Openbox autostart ===
-mkdir -p /etc/xdg/openbox
-cat > /etc/xdg/openbox/autostart << 'AUTOSTART'
-xsetroot -solid "#2c3e50" &
-tint2 &
-(sleep 2 && nm-applet) &
-AUTOSTART
+# === Set wallpaper LXDE jadi warna DIKNOM (biru gelap) ===
+mkdir -p /home/diknom/.config/pcmanfm/LXDE
+cat > /home/diknom/.config/pcmanfm/LXDE/desktop-items-0.conf << 'PCMANFM'
+[*]
+wallpaper_mode=color
+desktop_bg=#2c3e50
+desktop_fg=#ffffff
+desktop_shadow=#000000
+show_documents=1
+show_trash=1
+show_mounts=1
+PCMANFM
 
 # Pastikan kepemilikan home benar
 chown -R diknom:diknom /home/diknom 2>/dev/null || true
