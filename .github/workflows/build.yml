@@ -13,10 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build DIKNOM OS
+      - name: Build DIKNOM OS di Debian container
         run: |
-          chmod +x build.sh
-          sudo bash build.sh
+          docker run --privileged --rm \
+            -v ${{ github.workspace }}:/work \
+            -w /work \
+            debian:bookworm \
+            bash build.sh
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
