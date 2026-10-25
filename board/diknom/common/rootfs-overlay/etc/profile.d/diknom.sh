@@ -1,4 +1,4 @@
-# Diknom OS - alias bawaan
+# DikNom OS - alias bawaan
 alias ll='ls -lah'
 alias la='ls -A'
 alias l='ls -CF'

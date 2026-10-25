@@ -1,4 +1,4 @@
-# Diknom OS - opsi kernel untuk live ISO berbasis initramfs.
+# DikNom OS - opsi kernel untuk live ISO berbasis initramfs.
 # Opsi yang tidak dikenal kernel akan diabaikan otomatis, jadi aman
 # dibawa lintas versi 6.6.x.
 

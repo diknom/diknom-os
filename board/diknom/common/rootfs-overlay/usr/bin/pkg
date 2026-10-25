@@ -1,6 +1,6 @@
 #!/bin/sh
 # ============================================================
-#  pkg - Diknom Package Manager v0.1
+#  pkg - DikNom Package Manager v0.1
 #  Jujur: v0.1 hanya memasang file .dnp lokal.
 #  Tidak ada apt, tidak ada apk, tidak ada repo online.
 # ============================================================
@@ -125,7 +125,7 @@ cmd_search() {
     if [ -n "$DNPKG_REPO_URL" ]; then
         say "  (repo index belum diunduh di v0.1)"
     else
-        err "Repo paket Diknom belum aktif."
+        err "Repo paket DikNom belum aktif."
         say "Mulai v0.4: index .dnp diterbitkan di GitHub Releases,"
         say "lalu 'pkg search' membaca index itu."
         say "Untuk sekarang: pkg install ./file.dnp"
@@ -142,7 +142,7 @@ cmd_files() {
 
 cmd_help() {
     say ""
-    printf '\033[1m  pkg %s - Diknom Package Manager\033[0m\n\n' "$VERSION"
+    printf '\033[1m  pkg %s - DikNom Package Manager\033[0m\n\n' "$VERSION"
     say "  pkg install <file.dnp>   pasang paket lokal"
     say "  pkg remove  <nama>       hapus paket"
     say "  pkg list                 daftar paket .dnp terpasang"
@@ -154,7 +154,7 @@ cmd_help() {
     say "  pkg help                  bantuan ini"
     say ""
     say "  v0.1 belum punya repo online. Paket bawaan tidak lewat pkg."
-    say "  apt dan apk tidak ada di Diknom OS: sistem ini dari source," 
+    say "  apt dan apk tidak ada di DikNom OS: sistem ini dari source," 
     say "  bukan turunan Debian/Alpine. Pakai pkg."
     say ""
 }
@@ -169,7 +169,7 @@ case "$CMD" in
     history|log)      cmd_history ;;
     doctor|check)     cmd_doctor ;;
     update|upgrade)
-        err "Repo paket Diknom belum aktif di v0.1."
+        err "Repo paket DikNom belum aktif di v0.1."
         say "Rencana: index .dnp di GitHub Releases mulai v0.4."
         exit 1 ;;
     help|--help|-h|"") cmd_help ;;

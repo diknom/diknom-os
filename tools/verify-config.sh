@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Diknom OS - pastikan defconfig kita tidak diam-diam dibuang kconfig.
+# DikNom OS - pastikan defconfig kita tidak diam-diam dibuang kconfig.
 # Pemakaian: tools/verify-config.sh <defconfig> <.config>
 set -uo pipefail
 

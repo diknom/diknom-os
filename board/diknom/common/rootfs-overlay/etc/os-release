@@ -1,7 +1,7 @@
-NAME="Diknom OS"
+NAME="DikNom OS"
 ID=diknom
 ID_LIKE=
-PRETTY_NAME="Diknom OS 0.1 (Blitar Edition)"
+PRETTY_NAME="DikNom OS 0.1 (Blitar Edition)"
 VERSION="0.1"
 VERSION_ID="0.1"
 VERSION_CODENAME=blitar

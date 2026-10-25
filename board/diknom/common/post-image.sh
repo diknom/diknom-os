@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Diknom OS - membuat ISO hybrid (BIOS + UEFI) dari kernel + initramfs.
+# DikNom OS - membuat ISO hybrid (BIOS + UEFI) dari kernel + initramfs.
 set -euo pipefail
 
 BINARIES_DIR="$1"
@@ -36,7 +36,7 @@ fi
 sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@FLAVOR@/$FLAVOR/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
 
 grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" \
-    -- -volid DIKNOM_OS -application "Diknom OS $VER" >/dev/null
+    -- -volid DIKNOM_OS -application "DikNom OS $VER" >/dev/null
 
 ls -lh "$BINARIES_DIR/$ISO_NAME"
 echo "post-image: $ISO_NAME selesai"

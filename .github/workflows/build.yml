@@ -24,7 +24,7 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          # ---- Diknom OS Lite : di bawah 256 MB ----
+          # ---- DikNom OS Lite : di bawah 256 MB ----
           - flavor: lite
             arch: x86_64
             dir: lite/x86_64
@@ -37,7 +37,7 @@ jobs:
             defconfig: diknom_lite_i686_defconfig
             qemu: qemu-system-i386
             ram: 256
-          # ---- Diknom OS : normal, minimum 2 GB ----
+          # ---- DikNom OS : normal, minimum 2 GB ----
           - flavor: normal
             arch: x86_64
             dir: normal/x86_64
@@ -84,7 +84,7 @@ jobs:
       - name: Ambil Buildroot (LTS 2024.02.x)
         run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
 
-      - name: Konfigurasi Diknom OS
+      - name: Konfigurasi DikNom OS
         run: |
           cd buildroot
           mkdir -p board
@@ -173,5 +173,5 @@ jobs:
         run: |
           gh release create "${GITHUB_REF_NAME}" dist/*.iso \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Diknom OS ${GITHUB_REF_NAME}" \
+            --title "DikNom OS ${GITHUB_REF_NAME}" \
             --generate-notes

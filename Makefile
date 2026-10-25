@@ -1,4 +1,4 @@
-# Diknom OS - pembantu build lokal.
+# DikNom OS - pembantu build lokal.
 # Build resmi di GitHub Actions; target ini untuk uji cepat di mesin Linux.
 
 BUILDROOT_DIR   := buildroot

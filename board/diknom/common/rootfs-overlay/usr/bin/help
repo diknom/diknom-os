@@ -1,10 +1,10 @@
 #!/bin/sh
-# help - pusat bantuan Diknom OS
+# help - pusat bantuan DikNom OS
 
 B='\033[1m'; G='\033[0;32m'; C='\033[0;36m'; Y='\033[0;33m'; N='\033[0m'
 
 utama() {
-    printf '\n%b\n' "${B}  DIKNOM OS - Pusat Bantuan${N}"
+    printf '\n%b\n' "${B}  DikNom OS - Pusat Bantuan${N}"
     printf '%b\n' "  ------------------------------"
     printf '  %bhelp paket%b      kelola paket .dnp\n' "$G" "$N"
     printf '  %bhelp sistem%b     info & perawatan\n' "$G" "$N"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Diknom OS - siapkan mount dasar untuk sistem live
+# DikNom OS - siapkan mount dasar untuk sistem live
 
 mkdir -p /proc /sys /dev/pts /dev/shm /tmp /run /var/log /var/lib/dnpkg/installed
 
@@ -13,4 +13,4 @@ mountpoint -q /var/log  || mount -t tmpfs  tmpfs    /var/log
 
 mount -a 2>/dev/null
 
-echo "Diknom OS: sistem file dasar siap"
+echo "DikNom OS: sistem file dasar siap"

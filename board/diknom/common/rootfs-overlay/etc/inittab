@@ -1,4 +1,4 @@
-# Diknom OS - BusyBox init
+# DikNom OS - BusyBox init
 ::sysinit:/etc/init.d/rcS
 ::ctrlaltdel:/sbin/reboot
 

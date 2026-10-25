@@ -1,4 +1,4 @@
-# Diknom OS - driver wifi + firmware loader untuk rasa work
+# DikNom OS - driver wifi + firmware loader untuk rasa work
 CONFIG_FW_LOADER=y
 CONFIG_FW_LOADER_USER_HELPER=y
 CONFIG_CFG80211=y

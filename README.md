@@ -1,4 +1,4 @@
-# Diknom OS
+# DikNom OS
 
 Distro Linux yang dibangun **dari source**, bukan turunan Debian/Alpine/Ubuntu.
 Tidak ada satu pun paket `.deb`/`.apk` di dalam ISO. Semua binary dikompilasi
@@ -34,7 +34,7 @@ patch, userspace, dan kebijakan.
       common/post-build.sh             sentuhan akhir rootfs
       common/post-image.sh             pembuat ISO hybrid BIOS+UEFI
       common/grub.cfg                  menu boot
-      common/rootfs-overlay/           seluruh identitas Diknom OS
+      common/rootfs-overlay/           seluruh identitas DikNom OS
         etc/                           os-release, motd, inittab, init.d
         usr/bin/                       pkg, dnfetch, help
 
@@ -57,12 +57,12 @@ Setiap tag `v*` menerbitkan Release berisi kedua ISO, jadi tautannya permanen
 
 | Produk | libc | RAM | Sasaran | Nama ISO |
 |---|---|---|---|---|
-| Diknom OS Lite | musl | di bawah 256 MB | komputer tua, prosesor generasi awal | `diknom-os-lite-<ver>-<arch>.iso` |
-| Diknom OS | glibc | minimum 2 GB | mesin kerja harian, programmer | `diknom-os-<ver>-<arch>.iso` |
+| DikNom OS Lite | musl | di bawah 256 MB | komputer tua, prosesor generasi awal | `diknom-os-lite-<ver>-<arch>.iso` |
+| DikNom OS | glibc | minimum 2 GB | mesin kerja harian, programmer | `diknom-os-<ver>-<arch>.iso` |
 
 `<arch>` = `x86_64` atau `i686`. Semua dari pohon source yang sama.
 
-Kenapa dua libc: Lite butuh sekecil mungkin, dan musl memberi itu. Diknom OS
+Kenapa dua libc: Lite butuh sekecil mungkin, dan musl memberi itu. DikNom OS
 normal butuh tool dev yang sudah jadi — Node.js resmi, banyak Python wheel,
 dan binary Rust pra-kompilasi semuanya menargetkan glibc; dengan musl semuanya
 harus dikompilasi sendiri.

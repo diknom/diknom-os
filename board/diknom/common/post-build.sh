@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Diknom OS - sentuhan akhir rootfs sebelum diimage.
+# DikNom OS - sentuhan akhir rootfs sebelum diimage.
 set -euo pipefail
 
 TARGET_DIR="$1"
@@ -7,7 +7,7 @@ TARGET_DIR="$1"
 
 # --- user diknom (uid 1000) ---
 grep -q '^diknom:' "$TARGET_DIR/etc/passwd" || \
-    echo 'diknom:x:1000:1000:Diknom User:/home/diknom:/bin/sh' >> "$TARGET_DIR/etc/passwd"
+    echo 'diknom:x:1000:1000:DikNom User:/home/diknom:/bin/sh' >> "$TARGET_DIR/etc/passwd"
 grep -q '^diknom:' "$TARGET_DIR/etc/group" || \
     echo 'diknom:x:1000:' >> "$TARGET_DIR/etc/group"
 if ! grep -q '^diknom:' "$TARGET_DIR/etc/shadow"; then
