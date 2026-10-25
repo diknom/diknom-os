@@ -90,6 +90,17 @@ jobs:
             ccache-${{ matrix.flavor }}-${{ matrix.arch }}-
             ccache-${{ matrix.arch }}-
 
+      - name: Verifikasi tooling boot
+        run: |
+          echo "--- grub-mkrescue ---"; grub-mkrescue --version
+          echo "--- modul grub tersedia ---"
+          ls /usr/lib/grub/ 2>/dev/null || true
+          for d in i386-pc x86_64-efi i386-efi; do
+            test -d "/usr/lib/grub/$d" && echo "  ada: $d" || echo "  TIDAK ADA: $d"
+          done
+          echo "--- xorriso ---"; xorriso -version 2>&1 | head -3
+          echo "--- mtools ---"; mformat --version 2>&1 | head -1 || true
+
       - name: Ambil Buildroot (LTS 2024.02.x)
         run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
 

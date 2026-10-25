@@ -44,8 +44,9 @@ fi
 sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@FLAVOR@/$FLAVOR/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
 
 GRUB_LOG="$(mktemp)"
-if ! grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" \
-        -- -volid DIKNOM_OS -application "DikNom OS $VER" >"$GRUB_LOG" 2>&1; then
+# Tanpa opsi tambahan: argumen setelah '--' diteruskan ke xorriso dan itu yang
+# membuat pemanggilan gagal di runner. Volume ID default sudah cukup.
+if ! grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" >"$GRUB_LOG" 2>&1; then
     echo "post-image: grub-mkrescue GAGAL" >&2
     tail -n 40 "$GRUB_LOG" >&2
     echo "--- isi ISOROOT ---" >&2
