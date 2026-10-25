@@ -16,21 +16,40 @@ concurrency:
 
 jobs:
   build:
-    name: ISO ${{ matrix.arch }}
+    name: ${{ matrix.flavor }} / ${{ matrix.arch }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix:
         include:
-          - arch: x86_64
-            dir: x86_64
+          # ---- Diknom OS Lite : di bawah 256 MB ----
+          - flavor: lite
+            arch: x86_64
+            dir: lite/x86_64
+            defconfig: diknom_lite_x86_64_defconfig
+            qemu: qemu-system-x86_64
+            ram: 256
+          - flavor: lite
+            arch: i686
+            dir: lite/i686
+            defconfig: diknom_lite_i686_defconfig
+            qemu: qemu-system-i386
+            ram: 256
+          # ---- Diknom OS : normal, minimum 2 GB ----
+          - flavor: normal
+            arch: x86_64
+            dir: normal/x86_64
             defconfig: diknom_x86_64_defconfig
             qemu: qemu-system-x86_64
-          - arch: i686
-            dir: i686
+            ram: 2048
+          - flavor: normal
+            arch: i686
+            dir: normal/i686
             defconfig: diknom_i686_defconfig
             qemu: qemu-system-i386
+            ram: 2048
     env:
       BR2_DL_DIR: ${{ github.workspace }}/br-dl
     steps:
@@ -57,8 +76,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: br-dl
-          key: br-dl-${{ matrix.arch }}-${{ hashFiles('board/diknom/**', 'VERSION') }}
+          key: br-dl-${{ matrix.flavor }}-${{ matrix.arch }}-${{ hashFiles('board/diknom/**', 'VERSION') }}
           restore-keys: |
+            br-dl-${{ matrix.flavor }}-${{ matrix.arch }}-
             br-dl-${{ matrix.arch }}-
 
       - name: Ambil Buildroot (LTS 2024.02.x)
@@ -72,10 +92,12 @@ jobs:
           make BR2_DEFCONFIG="board/diknom/${{ matrix.dir }}/${{ matrix.defconfig }}" defconfig
           echo "--- arsitektur terpilih ---"
           grep -E '^BR2_(x86_64|i386)=' .config
+          echo "--- libc terpilih ---"
+          grep -E '^BR2_TOOLCHAIN_BUILDROOT_(MUSL|GLIBC)=' .config
           echo "--- overlay & skrip ---"
           grep -E '^BR2_ROOTFS_(OVERLAY|POST_BUILD_SCRIPT|POST_IMAGE_SCRIPT)=' .config
 
-      - name: Periksa konfigurasi (opsi tidak boleh dibuang kconfig)
+      - name: Gerbang: opsi konfigurasi tidak boleh dibuang kconfig
         run: |
           cd buildroot
           bash "$GITHUB_WORKSPACE/tools/verify-config.sh" \
@@ -87,27 +109,31 @@ jobs:
           set -o pipefail
           cd buildroot
           export DIKNOM_ARCH="${{ matrix.arch }}"
+          export DIKNOM_FLAVOR="${{ matrix.flavor }}"
           export DIKNOM_VERSION="$(cat ../VERSION | tr -d '[:space:]')"
-          make -j"$(nproc)" 2>&1 | tail -n 250
+          make -j"$(nproc)" 2>&1 | tail -n 300
 
       - name: Verifikasi hasil
         run: |
-          ls -lh buildroot/output/images/
-          ISO=$(ls buildroot/output/images/diknom-os-*.iso | head -1)
-          file "$ISO"
+          ls -lh buildroot/output/images/ || true
+          VER=$(tr -d '[:space:]' < VERSION)
+          if [ "${{ matrix.flavor }}" = "lite" ]; then PREFIX=diknom-os-lite; else PREFIX=diknom-os; fi
+          ISO="buildroot/output/images/${PREFIX}-${VER}-${{ matrix.arch }}.iso"
           echo "ISO=$ISO" >> "$GITHUB_ENV"
+          ls -lh "$ISO"
+          file "$ISO"
 
-      - name: Smoke test QEMU (RAM 256 MB)
+      - name: Smoke test QEMU (RAM ${{ matrix.ram }} MB)
         run: |
           set +e
-          timeout 420 ${{ matrix.qemu }} -m 256 -cdrom "$ISO" -boot d \
+          timeout 600 ${{ matrix.qemu }} -m ${{ matrix.ram }} -cdrom "$ISO" -boot d \
             -nographic -no-reboot -accel tcg > qemu.log 2>&1
           RC=$?
           set -e
           echo "qemu exit: $RC"
-          tail -n 40 qemu.log || true
-          if grep -q "diknom login:" qemu.log; then
-            echo "SMOKE_OK: boot sampai prompt login dengan RAM 256 MB"
+          tail -n 50 qemu.log || true
+          if grep -q "diknom.* login:" qemu.log; then
+            echo "SMOKE_OK: boot sampai prompt login pada ${{ matrix.ram }} MB"
           else
             echo "SMOKE_FAIL: tidak sampai prompt login"
             exit 1
@@ -117,7 +143,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-log-${{ matrix.arch }}
+          name: qemu-log-${{ matrix.flavor }}-${{ matrix.arch }}
           path: qemu.log
           retention-days: 30
           if-no-files-found: ignore
@@ -125,8 +151,8 @@ jobs:
       - name: Simpan ISO
         uses: actions/upload-artifact@v4
         with:
-          name: diknom-os-${{ matrix.arch }}
-          path: buildroot/output/images/diknom-os-*.iso
+          name: ${{ matrix.flavor }}-${{ matrix.arch }}
+          path: buildroot/output/images/*.iso
           retention-days: 90
 
   release:

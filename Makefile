@@ -1,22 +1,32 @@
 # Diknom OS - pembantu build lokal.
-# Build resmi dilakukan di GitHub Actions; target di sini untuk uji cepat.
+# Build resmi di GitHub Actions; target ini untuk uji cepat di mesin Linux.
 
-BUILDROOT_DIR := buildroot
-BUILDROOT_BRANCH := 2024.02.x
-VERSION := $(shell cat VERSION | tr -d '[:space:]')
-ARCH ?= x86_64
+BUILDROOT_DIR   := buildroot
+BUILDROOT_BRANCH:= 2024.02.x
+VERSION         := $(shell tr -d '[:space:]' < VERSION)
+FLAVOR          ?= normal
+ARCH            ?= x86_64
 
-ifeq ($(ARCH),x86_64)
-DEFCONFIG := board/diknom/x86_64/diknom_x86_64_defconfig
-else ifeq ($(ARCH),i686)
-DEFCONFIG := board/diknom/i686/diknom_i686_defconfig
+ifeq ($(FLAVOR),lite)
+  DEFCONFIG := board/diknom/lite/$(ARCH)/diknom_lite_$(ARCH)_defconfig
+else ifeq ($(FLAVOR),normal)
+  DEFCONFIG := board/diknom/normal/$(ARCH)/diknom_$(ARCH)_defconfig
 else
-$(error ARCH harus x86_64 atau i686)
+  $(error FLAVOR harus lite atau normal)
 endif
 
-.PHONY: all buildroot config build clean check
+.PHONY: all buildroot config check build clean
 
-all: config build
+all: check build
+
+check:
+	@for f in board/diknom/common/rootfs-overlay/usr/bin/* \
+	          board/diknom/common/rootfs-overlay/etc/init.d/* \
+	          board/diknom/common/post-build.sh \
+	          board/diknom/common/post-image.sh \
+	          tools/verify-config.sh; do \
+		sh -n $$f || exit 1; echo "sintaks ok $$f"; \
+	done
 
 buildroot:
 	@test -d $(BUILDROOT_DIR) || \
@@ -26,15 +36,11 @@ buildroot:
 
 config: buildroot
 	cd $(BUILDROOT_DIR) && make BR2_DEFCONFIG=$(DEFCONFIG) defconfig
+	bash tools/verify-config.sh $(DEFCONFIG) $(BUILDROOT_DIR)/.config
 
 build: config
-	cd $(BUILDROOT_DIR) && DIKNOM_ARCH=$(ARCH) DIKNOM_VERSION=$(VERSION) make -j$(shell nproc)
-
-check:
-	@echo "Shellcheck-free repo: cek sintaks sh secara manual."
-	@for f in board/diknom/common/rootfs-overlay/usr/bin/* board/diknom/common/rootfs-overlay/etc/init.d/*; do \
-		sh -n $$f && echo "ok $$f"; \
-	done
+	cd $(BUILDROOT_DIR) && \
+		DIKNOM_ARCH=$(ARCH) DIKNOM_FLAVOR=$(FLAVOR) DIKNOM_VERSION=$(VERSION) make -j$$(nproc)
 
 clean:
 	rm -rf $(BUILDROOT_DIR) br-dl

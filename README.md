@@ -53,17 +53,19 @@ Build terjadi di GitHub Actions, tidak di laptop:
 Setiap tag `v*` menerbitkan Release berisi kedua ISO, jadi tautannya permanen
 (tidak ikut kedaluwarsa seperti artifact 30 hari).
 
-## Dua rasa
+## Dua produk, empat ISO
 
-| Rasa | libc | Sasaran | Ambisi RAM |
-|---|---|---|---|
-| `lite` | musl | komputer tua, sekadar bisa dipakai lagi | 256 MB |
-| `work` | glibc | mesin kerja programmer | 16 GB |
+| Produk | libc | RAM | Sasaran | Nama ISO |
+|---|---|---|---|---|
+| Diknom OS Lite | musl | di bawah 256 MB | komputer tua, prosesor generasi awal | `diknom-os-lite-<ver>-<arch>.iso` |
+| Diknom OS | glibc | minimum 2 GB | mesin kerja harian, programmer | `diknom-os-<ver>-<arch>.iso` |
 
-`lite` dipakai supaya komputer lama tetap dapat OS baru. `work` dipilih glibc
-karena tool dev yang sudah jadi (Node.js resmi, banyak Python wheel, binary
-Rust pra-kompilasi) semuanya menargetkan glibc; dengan musl semua harus
-dikompilasi sendiri. Dua-duanya dibangun dari pohon source yang sama.
+`<arch>` = `x86_64` atau `i686`. Semua dari pohon source yang sama.
+
+Kenapa dua libc: Lite butuh sekecil mungkin, dan musl memberi itu. Diknom OS
+normal butuh tool dev yang sudah jadi — Node.js resmi, banyak Python wheel,
+dan binary Rust pra-kompilasi semuanya menargetkan glibc; dengan musl semuanya
+harus dikompilasi sendiri.
 
 ## Roadmap
 

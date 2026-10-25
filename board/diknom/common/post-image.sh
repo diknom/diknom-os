@@ -5,8 +5,14 @@ set -euo pipefail
 BINARIES_DIR="$1"
 ARCH="${DIKNOM_ARCH:-x86_64}"
 VER="${DIKNOM_VERSION:-0.1}"
+FLAVOR="${DIKNOM_FLAVOR:-normal}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-ISO_NAME="diknom-os-${VER}-${ARCH}.iso"
+if [ "$FLAVOR" = "lite" ]; then
+    PRODUCT="diknom-os-lite"
+else
+    PRODUCT="diknom-os"
+fi
+ISO_NAME="${PRODUCT}-${VER}-${ARCH}.iso"
 
 command -v grub-mkrescue >/dev/null || {
     echo "post-image: grub-mkrescue tidak ada. Pasang grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin xorriso mtools" >&2
@@ -27,7 +33,7 @@ else
     echo "post-image: initramfs tidak ditemukan" >&2; exit 1
 fi
 
-sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
+sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@FLAVOR@/$FLAVOR/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
 
 grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" \
     -- -volid DIKNOM_OS -application "Diknom OS $VER" >/dev/null
