@@ -1,0 +1,7 @@
+# Diknom OS - profil shell
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin
+export PS1='\u@\h:\w\$ '
+export PAGER=less
+export EDITOR=nano
+
+[ -r /etc/profile.d/diknom.sh ] && . /etc/profile.d/diknom.sh

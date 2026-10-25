@@ -1,0 +1,12 @@
+NAME="Diknom OS"
+ID=diknom
+ID_LIKE=
+PRETTY_NAME="Diknom OS 0.1 (Blitar Edition)"
+VERSION="0.1"
+VERSION_ID="0.1"
+VERSION_CODENAME=blitar
+HOME_URL="https://github.com/diknom/diknom-os"
+SUPPORT_URL="https://github.com/diknom/diknom-os/issues"
+BUG_REPORT_URL="https://github.com/diknom/diknom-os/issues"
+LOGO=diknom
+ANSI_COLOR="1;34"

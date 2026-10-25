@@ -1,0 +1,16 @@
+#!/bin/sh
+# Diknom OS - siapkan mount dasar untuk sistem live
+
+mkdir -p /proc /sys /dev/pts /dev/shm /tmp /run /var/log /var/lib/dnpkg/installed
+
+mountpoint -q /proc     || mount -t proc   proc     /proc
+mountpoint -q /sys      || mount -t sysfs  sysfs    /sys
+mountpoint -q /dev/pts  || mount -t devpts devpts   /dev/pts
+mountpoint -q /dev/shm  || mount -t tmpfs  tmpfs    /dev/shm
+mountpoint -q /tmp      || mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /tmp
+mountpoint -q /run      || mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run
+mountpoint -q /var/log  || mount -t tmpfs  tmpfs    /var/log
+
+mount -a 2>/dev/null
+
+echo "Diknom OS: sistem file dasar siap"

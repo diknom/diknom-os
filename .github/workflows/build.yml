@@ -1,0 +1,144 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ISO ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            dir: x86_64
+            defconfig: diknom_x86_64_defconfig
+            qemu: qemu-system-x86_64
+          - arch: i686
+            dir: i686
+            defconfig: diknom_i686_defconfig
+            qemu: qemu-system-i386
+    env:
+      BR2_DL_DIR: ${{ github.workspace }}/br-dl
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kosongkan disk (build ini butuh ~20 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Dependensi host
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential git wget cpio unzip rsync bc \
+            libncurses-dev libssl-dev libelf-dev flex bison \
+            python3 file patch perl tar gzip bzip2 \
+            grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin \
+            xorriso mtools dosfstools qemu-system-x86
+
+      - name: Cache download Buildroot
+        uses: actions/cache@v4
+        with:
+          path: br-dl
+          key: br-dl-${{ matrix.arch }}-${{ hashFiles('board/diknom/**', 'VERSION') }}
+          restore-keys: |
+            br-dl-${{ matrix.arch }}-
+
+      - name: Ambil Buildroot (LTS 2024.02.x)
+        run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
+
+      - name: Konfigurasi Diknom OS
+        run: |
+          cd buildroot
+          mkdir -p board
+          ln -sfn "$GITHUB_WORKSPACE/board/diknom" board/diknom
+          make BR2_DEFCONFIG="board/diknom/${{ matrix.dir }}/${{ matrix.defconfig }}" defconfig
+          echo "--- arsitektur terpilih ---"
+          grep -E '^BR2_(x86_64|i386)=' .config
+          echo "--- overlay & skrip ---"
+          grep -E '^BR2_ROOTFS_(OVERLAY|POST_BUILD_SCRIPT|POST_IMAGE_SCRIPT)=' .config
+
+      - name: Build dari source (toolchain + kernel + rootfs)
+        run: |
+          set -o pipefail
+          cd buildroot
+          export DIKNOM_ARCH="${{ matrix.arch }}"
+          export DIKNOM_VERSION="$(cat ../VERSION | tr -d '[:space:]')"
+          make -j"$(nproc)" 2>&1 | tail -n 250
+
+      - name: Verifikasi hasil
+        run: |
+          ls -lh buildroot/output/images/
+          ISO=$(ls buildroot/output/images/diknom-os-*.iso | head -1)
+          file "$ISO"
+          echo "ISO=$ISO" >> "$GITHUB_ENV"
+
+      - name: Smoke test QEMU (RAM 256 MB)
+        run: |
+          set +e
+          timeout 420 ${{ matrix.qemu }} -m 256 -cdrom "$ISO" -boot d \
+            -nographic -no-reboot -accel tcg > qemu.log 2>&1
+          RC=$?
+          set -e
+          echo "qemu exit: $RC"
+          tail -n 40 qemu.log || true
+          if grep -q "diknom login:" qemu.log; then
+            echo "SMOKE_OK: boot sampai prompt login dengan RAM 256 MB"
+          else
+            echo "SMOKE_FAIL: tidak sampai prompt login"
+            exit 1
+          fi
+
+      - name: Simpan log QEMU
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-log-${{ matrix.arch }}
+          path: qemu.log
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Simpan ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: diknom-os-${{ matrix.arch }}
+          path: buildroot/output/images/diknom-os-*.iso
+          retention-days: 90
+
+  release:
+    name: Terbitkan Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Daftar file
+        run: ls -lh dist
+      - name: Buat release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/*.iso \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Diknom OS ${GITHUB_REF_NAME}" \
+            --generate-notes

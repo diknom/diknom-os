@@ -1,0 +1,28 @@
+# Kredensial — jangan pernah masuk repo
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+id_rsa*
+id_ed25519*
+*.token
+secrets.yml
+
+# Hasil build
+buildroot/
+output/
+*.iso
+*.img
+*.cpio
+*.cpio.gz
+bzImage
+*.tar.gz
+br-dl/
+
+# Sampah
+*.log
+*.swp
+.DS_Store
+Thumbs.db

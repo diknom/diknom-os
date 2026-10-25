@@ -1,0 +1,18 @@
+# Diknom OS - BusyBox init
+::sysinit:/etc/init.d/rcS
+::ctrlaltdel:/sbin/reboot
+
+# tty1: langsung masuk sebagai diknom (ISO live, tanpa password)
+tty1::respawn:/bin/login -f diknom </dev/tty1 >/dev/tty1 2>&1
+
+# tty2: shell konsol darurat
+tty2::askfirst:-/bin/sh
+
+# tty3: login biasa, butuh password
+tty3::respawn:/sbin/getty -L tty3 0 vt100
+
+# serial: dipakai smoke test CI
+ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100
+
+::shutdown:/bin/umount -a -r
+::restart:/sbin/init
