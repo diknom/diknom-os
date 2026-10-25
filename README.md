@@ -77,6 +77,14 @@ harus dikompilasi sendiri.
 | 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `pkg install` dari repo |
 | 1.0 | Installer ke disk, dua rasa rilis stabil, uji boot di perangkat nyata |
 
+## Baseline CPU
+
+Semua ISO dibangun untuk instruksi paling dasar: x86-64 baseline (SSE2) untuk
+64-bit dan i686 untuk 32-bit. Alasannya bukan kerapian — versi sebelumnya
+dibangun dengan `-march=corei7` dan `init` langsung mati SIGILL di CPU tanpa
+SSE4.2. Konsekuensinya: beberapa persen performa ditinggal di meja CPU modern,
+ditukar dengan jaminan boot di mesin lama.
+
 ## Batas nyata
 
 - 256 MB cukup untuk ISO live + GUI ringan + aplikasi inti. LibreOffice,

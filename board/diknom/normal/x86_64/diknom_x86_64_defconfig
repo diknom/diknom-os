@@ -5,7 +5,10 @@
 #  dibangun dari source sendiri.
 # ============================================================
 BR2_x86_64=y
-BR2_x86_corei7=y
+# Baseline x86-64 (SSE2 saja): jalan di SEMUA CPU x86-64, termasuk
+# CPU tua dan CPU emulasi QEMU. corei7/skylake memakai SSE4.2 yang
+# membuat init mati SIGILL di hardware lama.
+BR2_x86_x86_64=y
 BR2_LINUX_KERNEL_DEFCONFIG="x86_64"
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
