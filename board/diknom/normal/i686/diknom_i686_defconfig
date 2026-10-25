@@ -34,7 +34,6 @@ BR2_ROOTFS_POST_BUILD_SCRIPT="board/diknom/common/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/diknom/common/post-image.sh"
 
 # --- inti sistem ---
-BR2_PACKAGE_LIBXCRYPT=y
 BR2_PACKAGE_NANO=y
 BR2_PACKAGE_VIM=y
 BR2_PACKAGE_HTOP=y
