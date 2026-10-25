@@ -43,8 +43,26 @@ fi
 
 sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@FLAVOR@/$FLAVOR/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
 
-grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" \
-    -- -volid DIKNOM_OS -application "DikNom OS $VER" >/dev/null
+GRUB_LOG="$(mktemp)"
+if ! grub-mkrescue -o "$BINARIES_DIR/$ISO_NAME" "$ISOROOT" \
+        -- -volid DIKNOM_OS -application "DikNom OS $VER" >"$GRUB_LOG" 2>&1; then
+    echo "post-image: grub-mkrescue GAGAL" >&2
+    tail -n 40 "$GRUB_LOG" >&2
+    echo "--- isi ISOROOT ---" >&2
+    find "$ISOROOT" -maxdepth 3 >&2
+    exit 1
+fi
+rm -f "$GRUB_LOG"
+
+# ISO tanpa catatan El Torito tidak akan bisa boot; gagalkan di sini, bukan di QEMU.
+if command -v xorriso >/dev/null; then
+    if xorriso -indev "$BINARIES_DIR/$ISO_NAME" -report_el_torito plain 2>/dev/null \
+            | grep -q "El Torito"; then
+        echo "post-image: El Torito terverifikasi (BIOS/UEFI boot record ada)"
+    else
+        echo "post-image: PERINGATAN tidak menemukan catatan El Torito di ISO" >&2
+    fi
+fi
 
 ls -lh "$BINARIES_DIR/$ISO_NAME"
 echo "post-image: $ISO_NAME selesai"

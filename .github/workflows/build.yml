@@ -140,17 +140,25 @@ jobs:
 
       - name: Smoke test QEMU (RAM ${{ matrix.ram }} MB)
         run: |
-          set +e
-          timeout 600 ${{ matrix.qemu }} -m ${{ matrix.ram }} -cdrom "$ISO" -boot d \
-            -nographic -no-reboot -accel tcg > qemu.log 2>&1
-          RC=$?
           set -e
-          echo "qemu exit: $RC"
-          tail -n 50 qemu.log || true
-          if grep -q "diknom.* login:" qemu.log; then
-            echo "SMOKE_OK: boot sampai prompt login pada ${{ matrix.ram }} MB"
+          rm -f qemu.log
+          ${{ matrix.qemu }} -m ${{ matrix.ram }} -cdrom "$ISO" -boot d \
+            -nographic -no-reboot -accel tcg > qemu.log 2>&1 &
+          QPID=$!
+          OK=0
+          for i in $(seq 1 140); do
+            if grep -qa "diknom.* login:" qemu.log 2>/dev/null; then OK=1; break; fi
+            if ! kill -0 $QPID 2>/dev/null; then break; fi
+            sleep 3
+          done
+          kill $QPID 2>/dev/null || true
+          wait $QPID 2>/dev/null || true
+          echo "---- 40 baris terakhir konsol ----"
+          tail -n 40 qemu.log || true
+          if [ "$OK" = "1" ]; then
+            echo "SMOKE_OK: prompt login tercapai pada ${{ matrix.ram }} MB"
           else
-            echo "SMOKE_FAIL: tidak sampai prompt login"
+            echo "SMOKE_FAIL: prompt login tidak tercapai"
             exit 1
           fi
 
