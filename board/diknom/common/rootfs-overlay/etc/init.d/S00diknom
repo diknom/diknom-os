@@ -13,6 +13,13 @@ mountpoint -q /var/log  || mount -t tmpfs  tmpfs    /var/log
 
 mount -a 2>/dev/null
 
+# identitas host: kernel default '(none)' kalau ini tidak dijalankan
+if [ -s /etc/hostname ]; then
+    hostname -F /etc/hostname 2>/dev/null || hostname "$(cat /etc/hostname)" 2>/dev/null || true
+else
+    hostname diknom 2>/dev/null || true
+fi
+
 # home user: dibangun oleh CI non-root, jadi dirapikan di sini (init jalan sebagai root)
 if [ -d /home/diknom ]; then
     chown -R 1000:1000 /home/diknom 2>/dev/null || true
