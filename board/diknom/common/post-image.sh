@@ -22,8 +22,16 @@ command -v grub-mkrescue >/dev/null || {
 
 ISOROOT="$(mktemp -d)"
 trap 'rm -rf "$ISOROOT"' EXIT
-mkdir -p "$ISOROOT/boot/grub"
+mkdir -p "$ISOROOT/boot/grub/theme"
 cp "$BINARIES_DIR/bzImage" "$ISOROOT/boot/vmlinuz"
+
+# identitas boot: splash + tema menu
+if [ -f "$HERE/boot/splash.png" ]; then
+    cp "$HERE/boot/splash.png" "$ISOROOT/boot/grub/theme/splash.png"
+else
+    echo "post-image: splash.png tidak ada, menu tampil tanpa latar" >&2
+fi
+[ -f "$HERE/boot/theme/theme.txt" ] && cp "$HERE/boot/theme/theme.txt" "$ISOROOT/boot/grub/theme/theme.txt"
 
 if [ -f "$BINARIES_DIR/rootfs.cpio.gz" ]; then
     cp "$BINARIES_DIR/rootfs.cpio.gz" "$ISOROOT/boot/initrd.img"

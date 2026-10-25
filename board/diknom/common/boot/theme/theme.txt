@@ -1,0 +1,33 @@
+# DikNom OS - tema menu GRUB
+# Latar: splash.png (1024x768, logo di atas, ruang kosong di bawah untuk menu)
+
+title-text: "DikNom OS"
+title-font: "Unifont Regular 16"
+title-color: "#29b6f6"
+terminal-font: "Unifont Regular 16"
+desktop-image: "splash.png"
+desktop-image-scale-method: "stretch"
+
++ boot_menu {
+    left = 16%
+    top = 62%
+    width = 68%
+    height = 30%
+    item_font = "Unifont Regular 16"
+    item_color = "#90a4ae"
+    selected_item_color = "#ffffff"
+    item_height = 28
+    item_spacing = 4
+    item_padding = 6
+    menu_pixmap_style = ""
+}
+
++ label {
+    top = 95%
+    left = 0
+    width = 100%
+    align = "center"
+    color = "#37474f"
+    font = "Unifont Regular 16"
+    text = "github.com/diknom/diknom-os"
+}

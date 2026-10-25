@@ -39,6 +39,13 @@ done
 # --- buang dokumentasi berat (target 256 MB) ---
 rm -rf "$TARGET_DIR/usr/share/man" "$TARGET_DIR/usr/share/doc" "$TARGET_DIR/usr/share/info"
 
+# --- identitas visual ke dalam sistem (wallpaper & logo, dipakai GUI nanti) ---
+HERE_DIR="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$TARGET_DIR/usr/share/diknom"
+if [ -f "$HERE_DIR/boot/logo.png" ]; then
+    cp "$HERE_DIR/boot/logo.png" "$TARGET_DIR/usr/share/diknom/logo.png"
+fi
+
 # --- catat versi build ---
 VER="${DIKNOM_VERSION:-$(cat "$(dirname "$0")/../../../VERSION" 2>/dev/null || echo 0.1)}"
 ARCH="${DIKNOM_ARCH:-unknown}"
