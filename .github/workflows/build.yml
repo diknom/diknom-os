@@ -158,7 +158,11 @@ jobs:
           QPID=$!
           OK=0
           for i in $(seq 1 140); do
-            if grep -qa "diknom.* login:" qemu.log 2>/dev/null; then OK=1; break; fi
+            # getty mencetak "<hostname> login: " di awal baris, tanpa prefiks kernel
+            if grep -qaE "^diknom[a-z0-9-]* login:" qemu.log 2>/dev/null; then OK=1; break; fi
+            if grep -qa "Kernel panic" qemu.log 2>/dev/null; then
+              echo "kernel panic terdeteksi"; break
+            fi
             if ! kill -0 $QPID 2>/dev/null; then break; fi
             sleep 3
           done
