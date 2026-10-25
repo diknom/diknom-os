@@ -97,7 +97,7 @@ jobs:
           echo "--- overlay & skrip ---"
           grep -E '^BR2_ROOTFS_(OVERLAY|POST_BUILD_SCRIPT|POST_IMAGE_SCRIPT)=' .config
 
-      - name: Gerbang: opsi konfigurasi tidak boleh dibuang kconfig
+      - name: "Gerbang: opsi konfigurasi tidak boleh dibuang kconfig"
         run: |
           cd buildroot
           bash "$GITHUB_WORKSPACE/tools/verify-config.sh" \
