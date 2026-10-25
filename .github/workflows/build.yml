@@ -75,6 +75,13 @@ jobs:
           echo "--- overlay & skrip ---"
           grep -E '^BR2_ROOTFS_(OVERLAY|POST_BUILD_SCRIPT|POST_IMAGE_SCRIPT)=' .config
 
+      - name: Periksa konfigurasi (opsi tidak boleh dibuang kconfig)
+        run: |
+          cd buildroot
+          bash "$GITHUB_WORKSPACE/tools/verify-config.sh" \
+            "$GITHUB_WORKSPACE/board/diknom/${{ matrix.dir }}/${{ matrix.defconfig }}" \
+            .config
+
       - name: Build dari source (toolchain + kernel + rootfs)
         run: |
           set -o pipefail

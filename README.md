@@ -53,15 +53,27 @@ Build terjadi di GitHub Actions, tidak di laptop:
 Setiap tag `v*` menerbitkan Release berisi kedua ISO, jadi tautannya permanen
 (tidak ikut kedaluwarsa seperti artifact 30 hari).
 
+## Dua rasa
+
+| Rasa | libc | Sasaran | Ambisi RAM |
+|---|---|---|---|
+| `lite` | musl | komputer tua, sekadar bisa dipakai lagi | 256 MB |
+| `work` | glibc | mesin kerja programmer | 16 GB |
+
+`lite` dipakai supaya komputer lama tetap dapat OS baru. `work` dipilih glibc
+karena tool dev yang sudah jadi (Node.js resmi, banyak Python wheel, binary
+Rust pra-kompilasi) semuanya menargetkan glibc; dengan musl semua harus
+dikompilasi sendiri. Dua-duanya dibangun dari pohon source yang sama.
+
 ## Roadmap
 
 | Versi | Isi |
 |---|---|
-| 0.1 | ISO boot di 256 MB, init sendiri, shell, dnfetch/help/pkg lokal |
-| 0.2 | X11 + window manager ringan, sesi desktop otomatis |
-| 0.3 | Aplikasi inti: terminal, file manager, editor, image viewer, browser mini |
+| 0.1 | ISO boot di 256 MB, init sendiri, shell, dnfetch/help/pkg lokal, gerbang verifikasi config |
+| 0.2 | X11 + window manager ringan, sesi desktop otomatis, wifi (rasa work) |
+| 0.3 | Rasa `work`: gcc/make/git/python/pip/node/ssh/tmux + terminal nyaman |
 | 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `pkg install` dari repo |
-| 1.0 | Installer ke disk, dua ISO rilis stabil |
+| 1.0 | Installer ke disk, dua rasa rilis stabil, uji boot di perangkat nyata |
 
 ## Batas nyata
 
