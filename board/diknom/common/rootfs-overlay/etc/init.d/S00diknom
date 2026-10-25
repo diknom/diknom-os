@@ -13,4 +13,10 @@ mountpoint -q /var/log  || mount -t tmpfs  tmpfs    /var/log
 
 mount -a 2>/dev/null
 
+# home user: dibangun oleh CI non-root, jadi dirapikan di sini (init jalan sebagai root)
+if [ -d /home/diknom ]; then
+    chown -R 1000:1000 /home/diknom 2>/dev/null || true
+    chmod 0755 /home/diknom 2>/dev/null || true
+fi
+
 echo "DikNom OS: sistem file dasar siap"

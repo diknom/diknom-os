@@ -15,9 +15,11 @@ if ! grep -q '^diknom:' "$TARGET_DIR/etc/shadow"; then
     echo "diknom:${HASH}:19000:0:99999:7:::" >> "$TARGET_DIR/etc/shadow"
 fi
 
+# Runner CI bukan root, jadi chown di sini akan gagal ('Operation not permitted').
+# Kepemilikan home diatur saat boot oleh /etc/init.d/S00diknom yang jalan sebagai root.
 mkdir -p "$TARGET_DIR/home/diknom"
-chown 1000:1000 "$TARGET_DIR/home/diknom"
 chmod 0755 "$TARGET_DIR/home/diknom"
+
 
 # --- direktori kerja sistem live ---
 mkdir -p "$TARGET_DIR/var/lib/dnpkg/installed" \
