@@ -81,6 +81,15 @@ jobs:
             br-dl-${{ matrix.flavor }}-${{ matrix.arch }}-
             br-dl-${{ matrix.arch }}-
 
+      - name: Cache ccache (percepat rebuild berikutnya)
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildroot-ccache
+          key: ccache-${{ matrix.flavor }}-${{ matrix.arch }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.flavor }}-${{ matrix.arch }}-
+            ccache-${{ matrix.arch }}-
+
       - name: Ambil Buildroot (LTS 2024.02.x)
         run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
 

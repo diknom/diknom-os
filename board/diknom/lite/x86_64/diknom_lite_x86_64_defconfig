@@ -3,7 +3,7 @@
 # ============================================================
 BR2_x86_64=y
 BR2_x86_corei7=y
-BR2_LINUX_KERNEL_DEFCONFIG="x86_64_defconfig"
+BR2_LINUX_KERNEL_DEFCONFIG="x86_64"
 BR2_TOOLCHAIN_BUILDROOT_MUSL=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
 BR2_KERNEL_HEADERS_AS_KERNEL=y
@@ -42,3 +42,9 @@ BR2_PACKAGE_PROCPS_NG=y
 BR2_PACKAGE_FILE=y
 BR2_PACKAGE_TAR=y
 BR2_PACKAGE_GZIP=y
+
+# --- percepat rebuild: ccache dibagi lewat cache Actions ---
+BR2_CCACHE=y
+BR2_CCACHE_DIR="$(HOME)/.buildroot-ccache"
+BR2_CCACHE_INITIAL_SETUP="--max-size=5G"
+BR2_CCACHE_USE_BASEDIR=y
