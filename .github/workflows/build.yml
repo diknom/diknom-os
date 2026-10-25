@@ -153,12 +153,15 @@ jobs:
         run: |
           set -e
           rm -f qemu.log
+          # -serial file: menulis konsol langsung ke disk. Redirect stdio ke file
+          # bersifat block-buffered, jadi prompt login baru terlihat setelah
+          # proses dibunuh — itu yang membuat deteksi gagal padahal boot sukses.
           ${{ matrix.qemu }} -m ${{ matrix.ram }} -cdrom "$ISO" -boot d \
-            -nographic -no-reboot -accel tcg > qemu.log 2>&1 &
+            -display none -monitor none -serial file:qemu.log \
+            -no-reboot -accel tcg &
           QPID=$!
           OK=0
           for i in $(seq 1 140); do
-            # getty mencetak "<hostname> login: " di awal baris, tanpa prefiks kernel
             if grep -qaE "^[A-Za-z0-9._()-]* *login:" qemu.log 2>/dev/null; then OK=1; break; fi
             if grep -qa "Kernel panic" qemu.log 2>/dev/null; then
               echo "kernel panic terdeteksi"; break
@@ -168,6 +171,9 @@ jobs:
           done
           kill $QPID 2>/dev/null || true
           wait $QPID 2>/dev/null || true
+          sleep 1
+          # putusan akhir: periksa sekali lagi setelah semua buffer ter-flush
+          if grep -qaE "^[A-Za-z0-9._()-]* *login:" qemu.log 2>/dev/null; then OK=1; fi
           echo "---- 40 baris terakhir konsol ----"
           tail -n 40 qemu.log || true
           if [ "$OK" = "1" ]; then
