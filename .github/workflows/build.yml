@@ -93,6 +93,12 @@ jobs:
       - name: Ambil Buildroot (LTS 2024.02.x)
         run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
 
+      - name: Pastikan skrip executable
+        run: |
+          # Windows tidak menyimpan bit executable; git menyimpan mode 644.
+          chmod +x board/diknom/common/*.sh tools/*.sh
+          ls -l board/diknom/common/*.sh tools/*.sh
+
       - name: Konfigurasi DikNom OS
         run: |
           cd buildroot
