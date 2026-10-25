@@ -34,7 +34,8 @@ sistem() {
     printf '  free -h      RAM\n'
     printf '  df -h        disk\n'
     printf '  pkg doctor cek dasar\n'
-    printf '  cat /etc/diknom-build   info build\n\n'
+    printf '  cat /etc/diknom-build   info build\n'
+    printf '  dnmode       info & atur resolusi layar\n\n'
 }
 
 file() {

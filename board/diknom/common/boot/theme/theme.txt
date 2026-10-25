@@ -6,7 +6,8 @@ title-font: "Unifont Regular 16"
 title-color: "#29b6f6"
 terminal-font: "Unifont Regular 16"
 desktop-image: "splash.png"
-desktop-image-scale-method: "stretch"
+desktop-image-scale-method: "padding"
+desktop-color: "#000000"
 
 + boot_menu {
     left = 16%
