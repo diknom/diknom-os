@@ -31,6 +31,6 @@ issue publik — kirim ringkasannya dulu, detail menyusul lewat kanal privat.
 
 ## Cakupan
 
-Dalam cakupan: konfigurasi build, init script, `dnpkg`, `dnfetch`, kebijakan
+Dalam cakupan: konfigurasi build, init script, `pkg`, `dnfetch`, kebijakan
 default ISO. Di luar cakupan: kerentanan di upstream kernel/Buildroot/paket
 pihak ketiga — laporkan ke upstream masing-masing.

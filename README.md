@@ -8,7 +8,7 @@ dari source oleh pipeline kita sendiri.
 - libc        : musl (bukan glibc)
 - Kernel      : Linux 6.6.x, config + fragment milik kita
 - init        : BusyBox init + script `/etc/init.d/S*` milik kita
-- Paket manager: `dnpkg` (format `.dnp`), bukan apt/apk
+- Paket manager: `pkg` (format `.dnp`), bukan apt/apk
 - Arsitektur  : x86_64 dan i686 (32-bit)
 - Target RAM  : 256 MB untuk sistem + GUI ringan
 
@@ -36,7 +36,7 @@ patch, userspace, dan kebijakan.
       common/grub.cfg                  menu boot
       common/rootfs-overlay/           seluruh identitas Diknom OS
         etc/                           os-release, motd, inittab, init.d
-        usr/bin/                       dnpkg, dnfetch, help
+        usr/bin/                       pkg, dnfetch, help
 
 ## Build
 
@@ -57,10 +57,10 @@ Setiap tag `v*` menerbitkan Release berisi kedua ISO, jadi tautannya permanen
 
 | Versi | Isi |
 |---|---|
-| 0.1 | ISO boot di 256 MB, init sendiri, shell, dnfetch/help/dnpkg lokal |
+| 0.1 | ISO boot di 256 MB, init sendiri, shell, dnfetch/help/pkg lokal |
 | 0.2 | X11 + window manager ringan, sesi desktop otomatis |
 | 0.3 | Aplikasi inti: terminal, file manager, editor, image viewer, browser mini |
-| 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `dnpkg install` dari repo |
+| 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `pkg install` dari repo |
 | 1.0 | Installer ke disk, dua ISO rilis stabil |
 
 ## Batas nyata

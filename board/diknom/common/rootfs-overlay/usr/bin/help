@@ -10,8 +10,8 @@ utama() {
     printf '  %bhelp sistem%b     info & perawatan\n' "$G" "$N"
     printf '  %bhelp file%b       kelola file & folder\n' "$G" "$N"
     printf '  %bhelp jaringan%b   cek koneksi\n' "$G" "$N"
-    printf '  %bhelp dnpkg%b      panduan dnpkg\n\n' "$G" "$N"
-    printf '  %bPerintah inti:%b dnpkg, dnfetch, help\n' "$B" "$N"
+    printf '  %bhelp pkg%b      panduan pkg\n\n' "$G" "$N"
+    printf '  %bPerintah inti:%b pkg, dnfetch, help\n' "$B" "$N"
     printf '  %bAlias:%b h/?, ll, cls, sysinfo, pkg\n\n' "$B" "$N"
     printf '  %bCatatan:%b ini ISO live v0.1, belum ada GUI.\n' "$Y" "$N"
     printf '  %bCatatan:%b repo paket .dnp aktif mulai v0.4.\n\n' "$Y" "$N"
@@ -19,11 +19,11 @@ utama() {
 
 paket() {
     printf '\n%b  PAKET .DNP%b\n\n' "$B" "$N"
-    printf '  Pasang file paket : dnpkg install ./aplikasi-1.0.dnp\n'
-    printf '  Daftar terpasang  : dnpkg list\n'
-    printf '  Hapus             : dnpkg remove aplikasi\n'
-    printf '  Cek kesehatan      : dnpkg doctor\n\n'
-    printf '  %bBelum ada repo online.%b dnpkg v0.1 hanya memasang\n' "$Y" "$N"
+    printf '  Pasang file paket : pkg install ./aplikasi-1.0.dnp\n'
+    printf '  Daftar terpasang  : pkg list\n'
+    printf '  Hapus             : pkg remove aplikasi\n'
+    printf '  Cek kesehatan      : pkg doctor\n\n'
+    printf '  %bBelum ada repo online.%b pkg v0.1 hanya memasang\n' "$Y" "$N"
     printf '  file .dnp lokal. Repo sendiri mendarat di v0.4.\n\n'
 }
 
@@ -33,7 +33,7 @@ sistem() {
     printf '  htop         monitor proses\n'
     printf '  free -h      RAM\n'
     printf '  df -h        disk\n'
-    printf '  dnpkg doctor cek dasar\n'
+    printf '  pkg doctor cek dasar\n'
     printf '  cat /etc/diknom-build   info build\n\n'
 }
 
@@ -59,6 +59,6 @@ case "$1" in
     sistem|system|info)     sistem ;;
     file|folder)            file ;;
     jaringan|network|wifi)  jaringan ;;
-    dnpkg|pkg)              dnpkg help ;;
+    pkg|pkg)              pkg help ;;
     *)                      utama ;;
 esac

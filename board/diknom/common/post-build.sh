@@ -28,6 +28,7 @@ mkdir -p "$TARGET_DIR/var/lib/dnpkg/installed" \
 chmod 1777 "$TARGET_DIR/tmp" "$TARGET_DIR/var/tmp"
 
 # --- permission skrip kita ---
+chmod 0755 "$TARGET_DIR/usr/bin/pkg" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/dnpkg" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/dnfetch" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/help" 2>/dev/null || true
