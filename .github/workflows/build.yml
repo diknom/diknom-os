@@ -177,6 +177,13 @@ jobs:
             exit 1
           fi
 
+      - name: Simpan ccache (juga saat job gagal)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.buildroot-ccache
+          key: ccache-${{ matrix.flavor }}-${{ matrix.arch }}-${{ github.run_id }}
+
       - name: Simpan log QEMU
         if: always()
         uses: actions/upload-artifact@v4
