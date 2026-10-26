@@ -1,21 +1,31 @@
 #!/bin/sh
-# Tentang DikNom OS - menyebut penyusun, bukan mengklaim menulis semua komponen
+# Tentang DikNom OS
+# Menyebut pengembang (DikNom) dan menyatakan terus terang bahwa fondasinya
+# Debian: kernel dan desktop bukan karya sendiri, penyusunan dan identitas iya.
+. /etc/os-release 2>/dev/null || true
+BASIS=$(sed -n 's/^DIKNOM_BASE=//p' /etc/diknom-build 2>/dev/null)
+DESKTOP=$(cat /etc/diknom-desktop 2>/dev/null || echo "-")
+KPKG=$(sed -n 's/^DIKNOM_KERNEL=//p' /etc/diknom-build 2>/dev/null)
+
 TEKS="<big><b>DikNom OS @VERSION@</b></big>
 
-Distro Linux yang <b>disusun</b> oleh
-<b>DikNom</b> di atas fondasi Debian 12 (bookworm).
+<b>Dikembangkan mandiri oleh DikNom.</b>
 
-Kernel Linux, XFCE/LXDE, dan seluruh paket sistem adalah
-perangkat lunak yang sudah ada. DikNom OS memilih, mengonfigurasi,
-memberi identitas, dan membangun ISO-nya.
+Disusun di atas fondasi Debian (${BASIS:-debian}).
+Kernel, desktop, dan paket sistem adalah perangkat lunak
+yang sudah ada; DikNom OS memilih, mengonfigurasi, dan
+memberi identitas.
 
-Kernel : $(uname -r)\nBasis  : $(. /etc/os-release; echo $PRETTY_NAME)
-Layar  : ${DISPLAY:-konsol}
+Desktop : ${DESKTOP}
+Kernel  : $(uname -r)
+Paket   : ${KPKG:--}
+Basis   : ${PRETTY_NAME:-Debian}
+Layar   : ${DISPLAY:-konsol}
 
 github.com/diknom/diknom-os"
 
 if command -v zenity >/dev/null 2>&1; then
-    exec zenity --info --title="Tentang DikNom OS" --width=460 --height=300 --text="$TEKS"
+    exec zenity --info --title="Tentang DikNom OS" --width=480 --height=340 --text="$TEKS"
 elif command -v xmessage >/dev/null 2>&1; then
     exec xmessage -center "$TEKS"
 else
