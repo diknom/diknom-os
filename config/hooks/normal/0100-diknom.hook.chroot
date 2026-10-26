@@ -37,7 +37,7 @@ case "$DM" in
     cat > /etc/gdm3/daemon.conf <<EOF
 [daemon]
 AutomaticLoginEnable=true
-AutomaticLogin=diknom
+AutomaticLogin=root
 WaylandEnable=false
 TimedLoginEnable=false
 EOF
@@ -46,7 +46,7 @@ EOF
     mkdir -p /etc/sddm.conf.d
     cat > /etc/sddm.conf.d/99-diknom.conf <<EOF
 [Autologin]
-User=diknom
+User=root
 Session=${SESSION}.desktop
 Relogin=false
 EOF
@@ -55,7 +55,7 @@ EOF
     mkdir -p /etc/lightdm/lightdm.conf.d
     cat > /etc/lightdm/lightdm.conf.d/99-diknom.conf <<EOF
 [Seat:*]
-autologin-user=diknom
+autologin-user=root
 autologin-user-timeout=0
 autologin-session=${SESSION}
 greeter-hide-users=false
@@ -64,6 +64,12 @@ EOF
   *)
     echo "PERINGATAN: tidak ada display manager terpasang" ;;
 esac
+
+# GDM menolak login root lewat aturan PAM. Hapus baris penolaknya supaya
+# autologin root benar-benar masuk (ISO live, bukan sistem produksi).
+for pam in /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password; do
+    [ -f "$pam" ] && sed -i '/pam_succeed_if.so user != root/d' "$pam" || true
+done
 
 # --- metadata ---
 echo "$DESKTOP" > /etc/diknom-desktop
