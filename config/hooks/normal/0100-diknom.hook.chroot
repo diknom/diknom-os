@@ -3,8 +3,6 @@
 set -e
 
 VER="${DIKNOM_VERSION:-0.3}"
-DESKTOP="xfce"
-command -v startxfce4 >/dev/null 2>&1 || DESKTOP="lxde"
 
 # --- user diknom ---
 if ! id diknom >/dev/null 2>&1; then
@@ -16,15 +14,42 @@ mkdir -p /etc/sudoers.d
 echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
 chmod 0440 /etc/sudoers.d/diknom
 
-# --- autologin lightdm ---
-mkdir -p /etc/lightdm/lightdm.conf.d
-cat > /etc/lightdm/lightdm.conf.d/99-diknom.conf <<EOF
+# --- tentukan desktop yang benar-benar terpasang ---
+if [ -f /usr/bin/gnome-shell ]; then
+    DESKTOP="gnome"
+elif [ -f /usr/bin/startxfce4 ]; then
+    DESKTOP="xfce"
+else
+    DESKTOP="lain"
+fi
+
+# --- autologin ---
+if [ "$DESKTOP" = "gnome" ] && [ -d /etc/gdm3 ]; then
+    mkdir -p /etc/gdm3
+    cat > /etc/gdm3/daemon.conf <<EOF
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=diknom
+WaylandEnable=false
+TimedLoginEnable=false
+EOF
+    # layar login tidak menahan boot
+    cat > /etc/gdm3/custom.conf <<EOF
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=diknom
+WaylandEnable=false
+EOF
+else
+    mkdir -p /etc/lightdm/lightdm.conf.d
+    cat > /etc/lightdm/lightdm.conf.d/99-diknom.conf <<EOF
 [Seat:*]
 autologin-user=diknom
 autologin-user-timeout=0
-autologin-session=${DESKTOP}
+autologin-session=xfce
 greeter-hide-users=false
 EOF
+fi
 
 # --- tandai desktop & versi ---
 echo "$DESKTOP" > /etc/diknom-desktop
@@ -42,9 +67,10 @@ for f in /etc/os-release /etc/issue /etc/motd /usr/local/bin/diknom-about; do
     [ -f "$f" ] && sed -i "s/@VERSION@/${VER}/g" "$f"
 done
 
-# --- wallpaper bawaan XFCE (kalau xfce terpasang) ---
-if [ -f /usr/share/backgrounds/diknom-os.png ] && [ -d /etc/xdg/xfce4/xfconf/xfce-perchannel-xml ]; then
-    cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'XFCE'
+# --- wallpaper bawaan ---
+if [ -f /usr/share/backgrounds/diknom-os.png ]; then
+    if [ -d /etc/xdg/xfce4/xfconf/xfce-perchannel-xml ]; then
+        cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'XFCE'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-desktop" version="1.0">
   <property name="backdrop" type="empty">
@@ -53,22 +79,31 @@ if [ -f /usr/share/backgrounds/diknom-os.png ] && [ -d /etc/xdg/xfce4/xfconf/xfc
         <property name="workspace0" type="empty">
           <property name="last-image" type="string" value="/usr/share/backgrounds/diknom-os.png"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="color-style" type="int" value="0"/>
-          <property name="rgba1" type="array">
-            <value type="double" value="0.105882"/>
-            <value type="double" value="0.141176"/>
-            <value type="double" value="0.188235"/>
-            <value type="double" value="1.000000"/>
-          </property>
         </property>
       </property>
     </property>
   </property>
 </channel>
 XFCE
+    fi
+    # GNOME: set wallpaper untuk user diknom lewat dconf sistem
+    mkdir -p /etc/dconf/db/local.d /etc/dconf/profile
+    cat > /etc/dconf/profile/user <<'PROF'
+user-db:user
+system-db:local
+PROF
+    cat > /etc/dconf/db/local.d/00-diknom <<'DCONF'
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/diknom-os.png'
+picture-uri-dark='file:///usr/share/backgrounds/diknom-os.png'
+picture-options='scaled'
+primary-color='#1b2430'
+[org/gnome/desktop/interface]
+clock-format='24h'
+DCONF
+    command -v dconf >/dev/null 2>&1 && dconf update || true
 fi
 
-# --- hak akses skrip kita ---
 chmod 0755 /usr/local/bin/pkg /usr/local/bin/dnfetch /usr/local/bin/help /usr/local/bin/diknom-about 2>/dev/null || true
 
 echo "hook DikNom OS selesai (desktop=$DESKTOP versi=$VER)"

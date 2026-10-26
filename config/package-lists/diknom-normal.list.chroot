@@ -1,12 +1,13 @@
-# DikNom OS normal - desktop XFCE lengkap, siap kerja
-task-xfce-desktop
-lightdm
-lightdm-gtk-greeter
-xfce4-terminal
-thunar
-mousepad
-ristretto
+# DikNom OS normal - desktop GNOME lengkap, siap kerja
+task-gnome-desktop
+gdm3
+gnome-terminal
+nautilus
+gedit
+eog
 file-roller
+gnome-disk-utility
+gnome-system-monitor
 network-manager
 network-manager-gnome
 firmware-linux
@@ -24,3 +25,5 @@ zenity
 sudo
 locales
 console-setup
+libgl1-mesa-dri
+mesa-utils

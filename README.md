@@ -10,14 +10,16 @@ identitas, dan membangun ISO-nya.
 
 | Produk | Desktop | RAM | Nama ISO |
 |---|---|---|---|
-| DikNom OS | XFCE | 2 GB ke atas | `diknom-os-<ver>-<arch>.iso` |
-| DikNom OS Lite | LXDE | dari 512 MB | `diknom-os-lite-<ver>-<arch>.iso` |
+| DikNom OS | GNOME | 4 GB (nyaman) / 2 GB minimal | `diknom-os-<ver>-<arch>.iso` |
+| DikNom OS Lite | XFCE | 1 GB (nyaman) / 512 MB minimal | `diknom-os-lite-<ver>-<arch>.iso` |
 
 `<arch>` = `amd64` atau `i386`.
 
-Kenapa Lite memakai LXDE dan bukan XFCE: XFCE realistis di 1 GB ke atas,
-sedangkan LXDE masih nyaman di mesin tua. Kalau kamu mau keduanya XFCE, cukup
-ubah `config/package-lists/diknom-lite.list.chroot`.
+Kenapa GNOME hanya di versi normal: GNOME 43 di Debian 12 butuh memori dan
+akselerasi grafis yang layak (minimal 2 GB, nyaman 4 GB). Di VM tanpa 3D ia
+turun ke llvmpipe (software) — jalan, tapi lambat. Lite memakai XFCE supaya
+masih wajar di 1 GB. Kalau mesinmu kuat, GNOME di laptop Intel seperti i3-6006U
+berjalan normal dengan driver i915.
 
 ## Isi khas DikNom OS
 

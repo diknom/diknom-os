@@ -1,5 +1,9 @@
-# DikNom OS Lite - desktop LXDE, sasaran RAM kecil
-lxde-core
+# DikNom OS Lite - desktop XFCE, lebih ringan dari GNOME
+xfce4
+xfce4-terminal
+thunar
+mousepad
+ristretto
 lightdm
 lightdm-gtk-greeter
 network-manager
@@ -7,9 +11,10 @@ network-manager-gnome
 firmware-linux
 firmware-iwlwifi
 curl
+wget
 nano
 htop
-xterm
 sudo
 locales
 console-setup
+libgl1-mesa-dri
