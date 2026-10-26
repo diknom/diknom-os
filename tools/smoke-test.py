@@ -95,9 +95,22 @@ if ok:
     send("echo SMOKE_MARKER_OK\n")
     ok &= check(wait_for(b"SMOKE_MARKER_OK", 45), "shell mengeksekusi perintah kita")
 
+# --- repo paket: dibuktikan dengan memasang dan menjalankan, bukan hanya hijau ---
+if ok:
+    send("pkg update\n")
+    ok &= check(wait_for(b"Index diperbarui", 150), "pkg update mengunduh index repo")
+
+if ok:
+    send("pkg install jq\n")
+    ok &= check(wait_for(b"terpasang di /usr/bin/jq", 240), "pkg install memasang paket dari repo")
+
+if ok:
+    send("jq --version\n")
+    ok &= check(wait_for(b"jq-1.", 45), "biner hasil pkg install benar-benar berjalan")
+
 print("---", flush=True)
 if all(results) and results:
-    print("SMOKE_OK: boot, login, dan shell terbukti berjalan", flush=True)
+    print("SMOKE_OK: boot, login, shell, dan pkg dari repo terbukti berjalan", flush=True)
     sys.exit(0)
 print("SMOKE_FAIL", flush=True)
 sys.exit(1)
