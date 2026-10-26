@@ -2,13 +2,14 @@
 ::sysinit:/etc/init.d/rcS
 ::ctrlaltdel:/sbin/reboot
 
-# tty1: langsung masuk sebagai diknom (ISO live, tanpa password)
-tty1::respawn:/bin/login -f diknom </dev/tty1 >/dev/tty1 2>&1
+# tty1: autologin sebagai diknom, lewat getty supaya tty benar-benar
+# menjadi controlling terminal (kalau tidak, job control mati dan xauth gagal)
+tty1::respawn:/sbin/getty -n -l /usr/bin/diknom-autologin 38400 tty1
 
-# tty2: shell konsol darurat
+# tty2: shell darurat
 tty2::askfirst:-/bin/sh
 
-# tty3: login biasa, butuh password
+# tty3: login biasa (butuh password)
 tty3::respawn:/sbin/getty -L tty3 0 vt100
 
 # serial: dipakai smoke test CI
