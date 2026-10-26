@@ -5,10 +5,17 @@
 if [ -z "$DISPLAY" ] && [ "$(tty 2>/dev/null)" = "/dev/tty1" ]; then
     if [ -x /usr/bin/startx ]; then
         startx -- -keeptty
-        # Kalau sampai sini berarti sesi X berakhir/gagal; tampilkan sebabnya.
+        # Kalau sampai di sini, sesi X berakhir atau gagal: tampilkan bukti.
         echo ""
-        echo "Sesi X berakhir. Kalau gagal start, 20 baris terakhir log:"
-        tail -n 20 /var/log/Xorg.0.log 2>/dev/null || echo "  (/var/log/Xorg.0.log tidak ada)"
+        echo "=== Diagnosa sesi X ==="
+        echo "-- perangkat grafis --"
+        ls -l /dev/dri 2>&1 | sed 's/^/   /'
+        ls -l /dev/fb* 2>&1 | sed 's/^/   /'
+        echo "-- driver kernel --"
+        grep -iE "drm|fb0|vboxvideo|vmwgfx|i915" /proc/modules 2>/dev/null | cut -d' ' -f1 | sed 's/^/   /'
+        echo "-- baris penting Xorg.0.log --"
+        grep -E "Loading|Failed to load|modesetting|card0|ScreenInit|no screens|EE" /var/log/Xorg.0.log 2>/dev/null | tail -20 | sed 's/^/   /'
+        echo "======================="
         echo ""
     fi
 fi
