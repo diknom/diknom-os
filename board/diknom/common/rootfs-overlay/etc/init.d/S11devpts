@@ -1,0 +1,13 @@
+#!/bin/sh
+# DikNom OS - perbaiki opsi devpts setelah udev.
+#
+# udev me-mount /dev/pts dengan ptmxmode=000, sehingga /dev/ptmx tidak bisa
+# dibuka user biasa dan xterm gagal dengan "open ttydev: I/O error" berulang.
+# Remount dengan mode yang benar sebelum sesi grafis dimulai.
+
+if mountpoint -q /dev/pts 2>/dev/null; then
+    mount -o remount,gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null         && echo "DikNom OS: devpts diperbaiki (ptmxmode=0666)"         || echo "DikNom OS: remount devpts gagal (lanjut)"
+else
+    mkdir -p /dev/pts
+    mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null         && echo "DikNom OS: devpts dipasang (ptmxmode=0666)"
+fi

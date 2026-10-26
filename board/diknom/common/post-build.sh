@@ -36,6 +36,7 @@ chmod 0755 "$TARGET_DIR/usr/bin/dnfetch" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/help" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/dnmode" 2>/dev/null || true
 chmod 0755 "$TARGET_DIR/usr/bin/diknom-autologin" 2>/dev/null || true
+chmod 0755 "$TARGET_DIR/etc/init.d/S11devpts" 2>/dev/null || true
 for s in "$TARGET_DIR"/etc/init.d/S[0-9]*; do
     [ -e "$s" ] && chmod 0755 "$s"
 done

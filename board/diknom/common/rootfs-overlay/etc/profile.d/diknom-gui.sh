@@ -4,18 +4,19 @@
 # (ttyS0) atau tty2 tetap konsol teks dan tidak menyalakan X dua kali.
 if [ -z "$DISPLAY" ] && [ "$(tty 2>/dev/null)" = "/dev/tty1" ]; then
     if [ -x /usr/bin/startx ]; then
-        startx -- -keeptty
-        # Kalau sampai di sini, sesi X berakhir atau gagal: tampilkan bukti.
+        LOG=/var/log/diknom-x.log
+        echo "=== sesi X mulai $(date) ===" > "$LOG"
+        ls -l /dev/dri >> "$LOG" 2>&1
+        ls -l /dev/fb* >> "$LOG" 2>&1
+        ls -l /dev/ptmx /dev/pts >> "$LOG" 2>&1
+        startx -- -keeptty >> "$LOG" 2>&1
+        echo "=== sesi X selesai $(date) ===" >> "$LOG"
+
+        # tampilkan ringkasan di layar supaya tidak pernah "layar kosong tanpa sebab"
         echo ""
-        echo "=== Diagnosa sesi X ==="
-        echo "-- perangkat grafis --"
-        ls -l /dev/dri 2>&1 | sed 's/^/   /'
-        ls -l /dev/fb* 2>&1 | sed 's/^/   /'
-        echo "-- driver kernel --"
-        grep -iE "drm|fb0|vboxvideo|vmwgfx|i915" /proc/modules 2>/dev/null | cut -d' ' -f1 | sed 's/^/   /'
-        echo "-- baris penting Xorg.0.log --"
-        grep -E "Loading|Failed to load|modesetting|card0|ScreenInit|no screens|EE" /var/log/Xorg.0.log 2>/dev/null | tail -20 | sed 's/^/   /'
-        echo "======================="
+        echo "=== Diagnosa sesi X (juga di $LOG) ==="
+        grep -E "Failed|error|Error|EE|ttydev|No such|no screens" "$LOG" 2>/dev/null | tail -15
+        echo "======================================="
         echo ""
     fi
 fi
