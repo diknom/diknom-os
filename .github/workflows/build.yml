@@ -47,7 +47,8 @@ jobs:
       - name: Dependensi host
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends debian-archive-keyring --no-install-recommends \
+          sudo apt-get install -y --no-install-recommends \
+            debian-archive-keyring \
             live-build debootstrap squashfs-tools xorriso \
             isolinux syslinux-common syslinux-efi grub-pc-bin grub-efi-amd64-bin \
             grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
