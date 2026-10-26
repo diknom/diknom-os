@@ -5,6 +5,11 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      only:
+        description: "Batasi ke satu kombinasi, mis. xfce/amd64 (kosong = semua)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -16,6 +21,9 @@ concurrency:
 jobs:
   build:
     name: ${{ matrix.desktop }} / ${{ matrix.arch }}
+    # Saat mencari bug, cukup satu kombinasi supaya satu kegagalan = satu
+    # penyebab. Tanpa input, semua delapan berjalan seperti biasa.
+    if: ${{ inputs.only == '' || format('{0}/{1}', matrix.desktop, matrix.arch) == inputs.only }}
     runs-on: ubuntu-latest
     timeout-minutes: 240
     strategy:
