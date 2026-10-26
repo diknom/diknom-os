@@ -9,7 +9,7 @@ printf '  %bdnfetch%b              info sistem\n' "$G" "$N"
 printf '  %bhelp jaringan%b        setting wifi\n' "$G" "$N"
 printf '  %bhelp tampilan%b       atur layar & tema\n' "$G" "$N"
 printf '\n  %bCatatan:%b apt juga tersedia langsung (apt install ...).\n' "$Y" "$N"
-printf '  %bCatatan:%b DikNom OS disusun di atas Debian 12 oleh Dikki Nomiarki.\n\n' "$Y" "$N"
+printf '  %bCatatan:%b DikNom OS disusun di atas Debian 12 oleh DikNom.\n\n' "$Y" "$N"
 
 case "$1" in
   jaringan|wifi|network)

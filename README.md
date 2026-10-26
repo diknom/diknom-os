@@ -1,6 +1,6 @@
 # DikNom OS
 
-Distro Linux yang **disusun** oleh Dikki Nomiarki di atas Debian — cara kerja
+Distro Linux yang **disusun** oleh DikNom di atas Debian — cara kerja
 yang sama dengan Ubuntu terhadap Debian, atau Kali dan Parrot terhadap Debian.
 Kernel, desktop, dan seluruh paket sistem adalah perangkat lunak yang sudah ada;
 DikNom OS memilih, mengonfigurasi, memberi identitas, dan membangun ISO-nya.

@@ -20,4 +20,4 @@ printf '              Kernel    : %s (%s)\n' "$KERNEL" "$ARCH"
 printf '              RAM       : %s MB bebas / %s MB\n' "$MEMF" "$MEMT"
 printf '              Paket apt : %s terpasang\n' "$PKGN"
 printf '              Uptime    : %s\n' "$UPTIME"
-printf '\n   \033[0;33mDisusun oleh Dikki Nomiarki\033[0m\n\n'
+printf '\n   \033[0;33mDisusun oleh DikNom\033[0m\n\n'

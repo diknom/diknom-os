@@ -2,5 +2,5 @@
 [org/gnome/login-screen]
 logo='/usr/share/icons/hicolor/256x256/apps/diknom.png'
 banner-message-enable=true
-banner-message-text='DikNom OS - disusun oleh Dikki Nomiarki'
+banner-message-text='DikNom OS - disusun oleh DikNom'
 disable-user-list=false
