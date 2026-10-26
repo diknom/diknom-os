@@ -79,7 +79,7 @@ jobs:
             live-build debootstrap squashfs-tools xorriso \
             isolinux syslinux-common syslinux-efi grub-pc-bin grub-efi-amd64-bin \
             grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
-            python3 curl ca-certificates
+            python3 curl ca-certificates imagemagick
           # Kunci arsip Debian wajib ada: debootstrap menolak jalan tanpa
           # /usr/share/keyrings/debian-archive-keyring.gpg ("Keyring-based
           # check was requested; aborting accordingly").
@@ -130,12 +130,13 @@ jobs:
           echo "--- ukuran ---"
           ls -lh "$ISO"
           echo "--- berkas penting (xorriso) ---"
-          xorriso -indev "$ISO" -find /live /boot -maxdepth 2 -name '*vmlinuz*' -o -name '*initrd*' -o -name 'grub.cfg' -o -name 'isolinux.cfg' 2>/dev/null | sed 's/^/  /'
+          xorriso -indev "$ISO" -find /live /isolinux /boot/grub -type f 2>/dev/null | sed 's/^/  /' | head -25
           echo "--- grub.cfg: baris kernel ---"
           rm -rf /tmp/iso && mkdir -p /tmp/iso
           xorriso -osirrox on -indev "$ISO" -extract /boot/grub/grub.cfg /tmp/iso/grub.cfg 2>/dev/null || true
           xorriso -osirrox on -indev "$ISO" -extract /isolinux/isolinux.cfg /tmp/iso/isolinux.cfg 2>/dev/null || true
-          for f in /tmp/iso/grub.cfg /tmp/iso/isolinux.cfg; do
+          xorriso -osirrox on -indev "$ISO" -extract /isolinux/menu.cfg /tmp/iso/menu.cfg 2>/dev/null || true
+          for f in /tmp/iso/grub.cfg /tmp/iso/isolinux.cfg /tmp/iso/menu.cfg; do
             [ -f "$f" ] || continue
             echo "== $f =="
             grep -E "linux|append|kernel|initrd" "$f" | head -12
@@ -157,12 +158,16 @@ jobs:
         run: |
           set +e
           rm -f qemu.log /tmp/serial.sock
+          rm -f /tmp/mon.sock
           ${{ matrix.qemu }} -m 2048 -cdrom "$ISO" -boot d \
-            -display none -monitor none \
+            -display none -monitor unix:/tmp/mon.sock,server,nowait \
             -serial unix:/tmp/serial.sock,server,nowait \
             -no-reboot -accel tcg 2> qemu.err &
           QPID=$!
-          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 1200
+          # Melihat layar: kalau serial bisu, penyebabnya ada di sini
+          ( sleep 45; python3 tools/screen.py /tmp/mon.sock /tmp/screen-a.ppm || true
+            sleep 120; python3 tools/screen.py /tmp/mon.sock /tmp/screen-b.ppm || true ) &
+          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 600
           RC=$?
           kill $QPID 2>/dev/null
           wait $QPID 2>/dev/null
@@ -172,12 +177,25 @@ jobs:
           tail -n 40 qemu.log | tr -d '\r'
           exit $RC
 
+      - name: Simpan tangkapan layar
+        if: always()
+        run: |
+          for f in /tmp/screen-a.ppm /tmp/screen-b.ppm; do
+            [ -f "$f" ] || continue
+            out="${f%.ppm}.png"
+            convert "$f" "$out" 2>/dev/null || python3 -c "import sys;print('konversi gagal:', sys.argv[1])" "$f"
+          done
+          ls -la /tmp/screen-*.png 2>/dev/null || true
+
       - name: Simpan log QEMU
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qemu-log-${{ matrix.desktop }}-${{ matrix.arch }}
-          path: qemu.log
+          path: |
+            qemu.log
+            qemu.err
+            /tmp/screen-*.png
           retention-days: 30
           if-no-files-found: ignore
 
