@@ -19,28 +19,47 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Menyusun daftar kombinasi. Kalau input "only" diisi (mis. xfce/amd64),
+  # hanya kombinasi itu yang dibangun — dipakai saat mencari bug supaya satu
+  # kegagalan berasal dari satu penyebab. Tanpa input, semua delapan jalan.
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: |
+          cat > all.json <<'EOF'
+          {"include":[
+            {"desktop":"gnome","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"kde","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"xfce","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"lxqt","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"mate","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"lxde","arch":"amd64","qemu":"qemu-system-x86_64"},
+            {"desktop":"xfce","arch":"i386","qemu":"qemu-system-i386"},
+            {"desktop":"lxde","arch":"i386","qemu":"qemu-system-i386"}
+          ]}
+          EOF
+          ONLY="${{ inputs.only }}"
+          if [ -n "$ONLY" ]; then
+            M=$(jq -c --arg only "$ONLY" \
+              '{include: [.include[] | select((.desktop + "/" + .arch) == $only)]}' all.json)
+          else
+            M=$(jq -c . all.json)
+          fi
+          echo "kombinasi: $M"
+          echo "matrix=$M" >> "$GITHUB_OUTPUT"
+
   build:
     name: ${{ matrix.desktop }} / ${{ matrix.arch }}
-    # Saat mencari bug, cukup satu kombinasi supaya satu kegagalan = satu
-    # penyebab. Tanpa input, semua delapan berjalan seperti biasa.
-    if: ${{ inputs.only == '' || format('{0}/{1}', matrix.desktop, matrix.arch) == inputs.only }}
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 8
-      matrix:
-        include:
-          # 64-bit: Debian 13 (trixie) - kernel 6.12 + desktop terbaru
-          - { desktop: gnome, arch: amd64, qemu: qemu-system-x86_64 }
-          - { desktop: kde,   arch: amd64, qemu: qemu-system-x86_64 }
-          - { desktop: xfce,  arch: amd64, qemu: qemu-system-x86_64 }
-          - { desktop: lxqt,  arch: amd64, qemu: qemu-system-x86_64 }
-          - { desktop: mate,  arch: amd64, qemu: qemu-system-x86_64 }
-          - { desktop: lxde,  arch: amd64, qemu: qemu-system-x86_64 }
-          # 32-bit: Debian 12 (bookworm) - Debian 13 tidak lagi menerbitkan i386
-          - { desktop: xfce,  arch: i386,  qemu: qemu-system-i386 }
-          - { desktop: lxde,  arch: i386,  qemu: qemu-system-i386 }
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
