@@ -24,19 +24,6 @@ done
 echo "desktop=$DESKTOP arch=$ARCH distro=$DISTRO"
 echo "daftar paket aktif: $(ls config/package-lists/*.list.chroot | xargs -n1 basename)"
 
-# Sumber apt sendiri. live-build versi Ubuntu menulis baris keamanan lama
-# ("$DISTRO/updates") yang tidak ada lagi di Debian, dan itu menggagalkan
-# apt update. Jadi keamanan dimatikan di lb config dan ditulis manual di sini
-# dengan skema yang benar ("debian-security $DISTRO-security").
-mkdir -p config/archives
-cat > config/archives/00-diknom.list.chroot <<EOF
-deb http://deb.debian.org/debian $DISTRO main contrib non-free non-free-firmware
-deb http://deb.debian.org/debian ${DISTRO}-updates main contrib non-free non-free-firmware
-deb http://security.debian.org/debian-security ${DISTRO}-security main contrib non-free non-free-firmware
-EOF
-echo "sumber apt:"
-cat config/archives/00-diknom.list.chroot
-
 case "$ARCH" in
     i386) LF="--linux-flavours 686-pae" ;;
     *)    LF="" ;;
@@ -59,9 +46,8 @@ lb config noauto \
     --distribution "$DISTRO" \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
-    --apt-recommends \
+    --apt-recommends true \
     --initsystem systemd \
-    --security false \
     --debian-installer none \
     --memtest none \
     --iso-application "DikNom OS" \
