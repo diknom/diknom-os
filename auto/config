@@ -1,6 +1,6 @@
 #!/bin/sh
 # DikNom OS - konfigurasi live-build
-# Dua rasa dari satu pohon: normal (XFCE) dan lite (LXDE).
+# Dua rasa dari satu pohon: normal (GNOME) dan lite (XFCE).
 set -e
 
 FLAVOR="${DIKNOM_FLAVOR:-normal}"
@@ -10,6 +10,16 @@ case "$FLAVOR" in
     lite) PLIST="diknom-lite" ;;
     *)    PLIST="diknom-normal" ;;
 esac
+
+# live-build memakai SEMUA *.list.chroot di config/package-lists.
+# Jadi pilih rasa dengan menyisihkan berkas yang tidak dipakai.
+mkdir -p config/package-lists.off
+for f in config/package-lists/*.list.chroot; do
+    [ -e "$f" ] || continue
+    [ "$(basename "$f")" = "${PLIST}.list.chroot" ] && continue
+    mv "$f" config/package-lists.off/
+done
+echo "daftar paket aktif: $(ls config/package-lists/*.list.chroot | xargs -n1 basename)"
 
 case "$ARCH" in
     i386) LF="--linux-flavours 686-pae" ;;
@@ -22,11 +32,9 @@ lb config noauto \
     --distribution bookworm \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
+    --apt-recommends \
     --debian-installer none \
     --memtest none \
-    --bootloader-timeout 6 \
-    --apt-recommends true \
-    --package-lists "$PLIST" \
     --iso-application "DikNom OS" \
     --iso-publisher "Dikki Nomiarki" \
     --iso-volume "DIKNOM_OS" \

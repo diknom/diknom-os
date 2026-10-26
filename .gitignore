@@ -23,6 +23,7 @@ config/chroot
 config/common
 config/source
 config/binary_*
+config/package-lists.off/
 
 # Python bytecode
 __pycache__/
