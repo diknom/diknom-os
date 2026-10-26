@@ -72,10 +72,17 @@ harus dikompilasi sendiri.
 | Versi | Isi |
 |---|---|
 | 0.1 | ISO boot di 256 MB, init sendiri, shell, dnfetch/help/pkg lokal, gerbang verifikasi config |
-| 0.2 | X11 + window manager ringan, sesi desktop otomatis, wifi (rasa work) |
+| 0.2 | X11 + window manager (fluxbox/twm), sesi desktop otomatis, input lewat udev+libinput |
 | 0.3 | Rasa `work`: gcc/make/git/python/pip/node/ssh/tmux + terminal nyaman |
 | 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `pkg install` dari repo |
 | 1.0 | Installer ke disk, dua rasa rilis stabil, uji boot di perangkat nyata |
+
+## Sesi grafis (mulai v0.2)
+
+Login di tty1 langsung menyalakan X lewat `/etc/profile.d/diknom-gui.sh`.
+Window manager dipilih saat runtime: `fluxbox` kalau ada (DikNom OS normal),
+`twm` kalau tidak (Lite). Kalau X gagal, konsol tetap hidup di tty2 dan ttyS0 —
+kegagalan grafis tidak boleh mengunci mesin.
 
 ## Baseline CPU
 

@@ -42,6 +42,12 @@ done
 # --- buang dokumentasi berat (target 256 MB) ---
 rm -rf "$TARGET_DIR/usr/share/man" "$TARGET_DIR/usr/share/doc" "$TARGET_DIR/usr/share/info"
 
+# --- sesi grafis: xinitrc untuk user diknom ---
+if [ -f "$TARGET_DIR/etc/diknom/xinitrc" ]; then
+    cp "$TARGET_DIR/etc/diknom/xinitrc" "$TARGET_DIR/home/diknom/.xinitrc"
+    chmod 0755 "$TARGET_DIR/home/diknom/.xinitrc"
+fi
+
 # --- identitas visual ke dalam sistem (wallpaper & logo, dipakai GUI nanti) ---
 HERE_DIR="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$TARGET_DIR/usr/share/diknom"
