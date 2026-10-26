@@ -42,8 +42,19 @@ case "$ARCH" in
     *)    LF="" ;;
 esac
 
+# Mirror eksplisit: default live-build masih ftp.debian.org, yang sudah
+# dipensiunkan Debian, sehingga pencarian paket kernel (Contents-*.gz)
+# berakhir 404 dan build berhenti di lb_chroot_linux-image.
+MIRROR="http://deb.debian.org/debian"
+MIRROR_SEC="http://security.debian.org/debian-security"
+
 lb config noauto \
     --mode debian \
+    --mirror-bootstrap "$MIRROR" \
+    --mirror-chroot "$MIRROR" \
+    --mirror-chroot-security "$MIRROR_SEC" \
+    --mirror-binary "$MIRROR" \
+    --mirror-binary-security "$MIRROR_SEC" \
     --architectures "$ARCH" \
     --distribution "$DISTRO" \
     --archive-areas "main contrib non-free non-free-firmware" \
