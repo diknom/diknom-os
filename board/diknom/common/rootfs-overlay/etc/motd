@@ -5,6 +5,6 @@
   ==========================================================
     help      pusat bantuan per topik
     dnfetch   info sistem
-    dnpkg     kelola paket .dnp
+    pkg     kelola paket .dnp
     nano      editor teks
   ==========================================================

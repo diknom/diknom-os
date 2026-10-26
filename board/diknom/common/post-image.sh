@@ -9,8 +9,10 @@ FLAVOR="${DIKNOM_FLAVOR:-normal}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 if [ "$FLAVOR" = "lite" ]; then
     PRODUCT="diknom-os-lite"
+    LABEL=" Lite"
 else
     PRODUCT="diknom-os"
+    LABEL=""
 fi
 ISO_NAME="${PRODUCT}-${VER}-${ARCH}.iso"
 
@@ -41,7 +43,7 @@ else
     echo "post-image: initramfs tidak ditemukan" >&2; exit 1
 fi
 
-sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@FLAVOR@/$FLAVOR/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
+sed "s/@VERSION@/$VER/; s/@ARCH@/$ARCH/; s/@LABEL@/$LABEL/" "$HERE/grub.cfg" > "$ISOROOT/boot/grub/grub.cfg"
 
 GRUB_LOG="$(mktemp)"
 # Tanpa opsi tambahan: argumen setelah '--' diteruskan ke xorriso dan itu yang
