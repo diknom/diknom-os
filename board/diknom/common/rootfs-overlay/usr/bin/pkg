@@ -25,13 +25,16 @@ logact() { mkdir -p /var/log 2>/dev/null; echo "[$(date '+%Y-%m-%d %H:%M:%S')] $
 need_root() { [ "$(id -u)" = "0" ] || { err "butuh root. Jalankan: su -"; exit 1; }; }
 
 dl() {  # dl <url> <dest>
-    if command -v wget >/dev/null 2>&1; then
-        wget -q -O "$2" "$1" 2>/dev/null
-    elif command -v curl >/dev/null 2>&1; then
-        curl -sfL -o "$2" "$1" 2>/dev/null
-    else
-        return 127
+    # curl didahulukan: wget di Lite adalah applet BusyBox yang tidak punya TLS,
+    # jadi https selalu gagal kalau wget dicoba lebih dulu.
+    ERR="/tmp/pkg-dl.err"
+    if command -v curl >/dev/null 2>&1; then
+        curl -sfL --connect-timeout 20 -o "$2" "$1" 2>"$ERR" && [ -s "$2" ] && return 0
     fi
+    if command -v wget >/dev/null 2>&1; then
+        wget -q -O "$2" "$1" 2>"$ERR" && [ -s "$2" ] && return 0
+    fi
+    return 1
 }
 
 repo_line() {  # repo_line <nama>  -> cetak baris index untuk arch ini
@@ -44,7 +47,12 @@ cmd_update() {
     mkdir -p "$DB"
     TMPIDX="$TMP.index"
     if ! dl "$REPO_URL" "$TMPIDX"; then
-        err "Gagal mengunduh index. Cek jaringan: ping -c1 github.com"
+        err "Gagal mengunduh index."
+        say "  URL    : $REPO_URL"
+        say "  curl   : $(command -v curl >/dev/null 2>&1 && echo ada || echo TIDAK ADA)"
+        say "  wget   : $(command -v wget >/dev/null 2>&1 && echo ada || echo 'TIDAK ADA')"
+        [ -s /tmp/pkg-dl.err ] && say "  pesan  : $(head -2 /tmp/pkg-dl.err)"
+        say "  cek jaringan: ping -c1 github.com"
         exit 1
     fi
     if ! head -1 "$TMPIDX" | grep -q "^# name"; then
