@@ -71,6 +71,19 @@ jobs:
           echo "--- verifikasi ---"
           for f in $FILES; do grep -n "security" "$f" | head -3; done
 
+          # Debian memindahkan indeks Contents ke dists/<suite>/main/, sedangkan
+          # live-build mencarinya di dists/<suite>/ lalu gagal 404 pada
+          # "lb_chroot_linux-image" (pencarian paket kernel).
+          echo "--- patch jalur Contents ---"
+          CFILES=$(sudo grep -rl 'Contents-' /usr/lib/live/build /usr/share/live/build 2>/dev/null || true)
+          echo "$CFILES"
+          for f in $CFILES; do
+            sudo sed -i 's|/main/Contents-|/Contents-|g' "$f"   # normalkan dulu
+            sudo sed -i 's|/Contents-|/main/Contents-|g' "$f"   # lalu tambahkan /main
+            echo "diubah: $f"
+            grep -n "Contents-" "$f" | head -3
+          done
+
       - name: Konfigurasi live-build
         run: |
           DIKNOM_DESKTOP="${{ matrix.desktop }}" \
