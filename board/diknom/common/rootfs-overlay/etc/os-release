@@ -1,9 +1,9 @@
 NAME="DikNom OS"
 ID=diknom
 ID_LIKE=
-PRETTY_NAME="DikNom OS 0.1 (Blitar Edition)"
-VERSION="0.1"
-VERSION_ID="0.1"
+PRETTY_NAME="DikNom OS @VERSION@ (Blitar Edition)"
+VERSION="@VERSION@"
+VERSION_ID="@VERSION@"
 VERSION_CODENAME=blitar
 HOME_URL="https://github.com/diknom/diknom-os"
 SUPPORT_URL="https://github.com/diknom/diknom-os/issues"

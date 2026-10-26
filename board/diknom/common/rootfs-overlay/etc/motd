@@ -1,10 +1,10 @@
 
   ==========================================================
-        DikNom OS 0.1  -  Blitar Edition
+        DIKNOM OS @VERSION@  -  Blitar Edition
         by Dikki Nomiarki
   ==========================================================
     help      pusat bantuan per topik
     dnfetch   info sistem
-    pkg     kelola paket .dnp
+    pkg       kelola paket (.dnp / repo)
     nano      editor teks
   ==========================================================

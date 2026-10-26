@@ -48,6 +48,12 @@ if [ -f "$TARGET_DIR/etc/diknom/xinitrc" ]; then
     chmod 0755 "$TARGET_DIR/home/diknom/.xinitrc"
 fi
 
+# --- Xorg: setuid supaya user biasa bisa menyalakan sesi X (tanpa systemd/logind) ---
+if [ -f "$TARGET_DIR/usr/bin/Xorg" ]; then
+    chmod 4755 "$TARGET_DIR/usr/bin/Xorg"
+    echo "post-build: Xorg setuid disetel"
+fi
+
 # --- identitas visual ke dalam sistem (wallpaper & logo, dipakai GUI nanti) ---
 HERE_DIR="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$TARGET_DIR/usr/share/diknom"
@@ -58,6 +64,11 @@ fi
 # --- catat versi build ---
 VER="${DIKNOM_VERSION:-$(cat "$(dirname "$0")/../../../VERSION" 2>/dev/null || echo 0.1)}"
 ARCH="${DIKNOM_ARCH:-unknown}"
+
+# ganti placeholder versi di identitas sistem
+for f in "$TARGET_DIR/etc/os-release" "$TARGET_DIR/etc/issue" "$TARGET_DIR/etc/motd"; do
+    [ -f "$f" ] && sed -i "s/@VERSION@/${VER}/g" "$f"
+done
 BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 cat > "$TARGET_DIR/etc/diknom-build" <<EOF
 DIKNOM_VERSION=$VER
