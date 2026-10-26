@@ -53,6 +53,24 @@ jobs:
             grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
             python3 curl ca-certificates
 
+      - name: Patch skema keamanan live-build
+        run: |
+          # live-build versi Ubuntu menulis sources.list dengan skema lama:
+          #   deb http://security.debian.org <distro>/updates main
+          # Debian modern memakai <distro>-security. Repo lama tidak ada, dan
+          # apt update gagal -> build berhenti. Opsi --security false diabaikan
+          # versi ini, jadi string-nya diperbaiki langsung di skrip live-build.
+          echo "--- berkas live-build yang menyebut /updates ---"
+          FILES=$(sudo grep -rl '/updates' /usr/lib/live/build /usr/share/live/build 2>/dev/null || true)
+          echo "$FILES"
+          for f in $FILES; do
+            sudo cp "$f" "$f.bak"
+            sudo sed -i 's|/updates|-security|g' "$f"
+            echo "diubah: $f"
+          done
+          echo "--- verifikasi ---"
+          for f in $FILES; do grep -n "security" "$f" | head -3; done
+
       - name: Konfigurasi live-build
         run: |
           DIKNOM_DESKTOP="${{ matrix.desktop }}" \
