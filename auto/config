@@ -60,6 +60,7 @@ lb config noauto \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --apt-recommends \
+    --initsystem systemd \
     --security false \
     --debian-installer none \
     --memtest none \
