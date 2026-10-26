@@ -1,11 +1,11 @@
 
 
   DikNom OS @VERSION@ - Blitar Edition
-  Disusun oleh Dikki Nomiarki di atas fondasi Debian 12 (bookworm).
-  Kernel dan XFCE/LXDE adalah perangkat lunak yang sudah ada; DikNom OS
+  Disusun oleh Dikki Nomiarki di atas fondasi Debian.
+  Kernel dan desktop adalah perangkat lunak yang sudah ada; DikNom OS
   memilih, mengonfigurasi, dan memberi identitas.
 
   Arsitektur : \m
   Kernel     : \r
 
-  Login: diknom (tanpa password)   root: password root
+  Login: root   Password: root1234

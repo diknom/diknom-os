@@ -3,7 +3,8 @@
         DIKNOM OS @VERSION@  -  Blitar Edition
         disusun oleh Dikki Nomiarki
   ==========================================================
+    login     : root  /  root1234
     pkg       pasang/upgrade aplikasi (pembungkus apt)
-    dnfetch   info sistem
+    dnfetch   info sistem (termasuk versi kernel)
     help      pusat bantuan
   ==========================================================

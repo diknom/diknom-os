@@ -1,22 +1,20 @@
 #!/bin/bash
-# DikNom OS - hook chroot: user, autologin, identitas versi.
-# Desktop dideteksi dari biner yang benar-benar terpasang, bukan dari nama rasa,
-# supaya autologin tidak pernah menunjuk sesi yang tidak ada.
+# DikNom OS - hook chroot.
+#
+# Sebelum instalasi ISO ini HANYA punya root (password root1234), sesuai
+# permintaan: tidak ada user "diknom" di sistem live. Setelah dipasang ke disk,
+# pemilik mesin bebas membuat user sendiri lewat Settings atau terminal.
 set -e
 
 VER="${DIKNOM_VERSION:-0.3}"
 
-# --- user diknom ---
-if ! id diknom >/dev/null 2>&1; then
-    useradd -m -s /bin/bash -G sudo,audio,video,netdev,plugdev,cdrom diknom
-fi
-echo "diknom:diknom" | chpasswd
+# --- kredensial live ---
 echo "root:root1234" | chpasswd
-mkdir -p /etc/sudoers.d
-echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
-chmod 0440 /etc/sudoers.d/diknom
+# root butuh home yang bisa ditulis untuk sesi grafis dan xauth
+mkdir -p /root/.config
+chmod 0700 /root
 
-# --- deteksi desktop & display manager ---
+# --- deteksi desktop & display manager dari biner yang benar-benar ada ---
 if   [ -x /usr/bin/startplasma-x11 ]; then DESKTOP=kde;   SESSION=plasmax11
 elif [ -x /usr/bin/gnome-shell ];     then DESKTOP=gnome; SESSION=gnome
 elif [ -x /usr/bin/startxfce4 ];      then DESKTOP=xfce;  SESSION=xfce
@@ -30,7 +28,7 @@ elif [ -x /usr/sbin/sddm ] || [ -x /usr/bin/sddm ]; then DM=sddm
 elif [ -x /usr/sbin/lightdm ]; then DM=lightdm
 else DM=none; fi
 
-# --- autologin sesuai DM ---
+# --- autologin root ---
 case "$DM" in
   gdm)
     mkdir -p /etc/gdm3
@@ -41,6 +39,10 @@ AutomaticLogin=root
 WaylandEnable=false
 TimedLoginEnable=false
 EOF
+    # GDM menolak root lewat PAM; hapus baris penolaknya
+    for pam in /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password; do
+        [ -f "$pam" ] && sed -i '/pam_succeed_if.so user != root/d' "$pam" || true
+    done
     ;;
   sddm)
     mkdir -p /etc/sddm.conf.d
@@ -65,25 +67,15 @@ EOF
     echo "PERINGATAN: tidak ada display manager terpasang" ;;
 esac
 
-# GDM menolak login root lewat aturan PAM. Hapus baris penolaknya supaya
-# autologin root benar-benar masuk (ISO live, bukan sistem produksi).
-for pam in /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password; do
-    [ -f "$pam" ] && sed -i '/pam_succeed_if.so user != root/d' "$pam" || true
-done
-
-# --- metadata ---
+# --- metadata + kernel ---
 echo "$DESKTOP" > /etc/diknom-desktop
 echo "$DM" > /etc/diknom-dm
-# kernel yang benar-benar terpasang di image ini
-KP=""
-KKEYS=$(dpkg-query -W -f='${Package} ${Version}\n' 'linux-image-*' 2>/dev/null \
-    | grep -vE 'unsigned|dbg|headers|modules' | head -1)
-[ -n "$KKEYS" ] && KP="${KKEYS%%\n*}"
-
+KPKG=$(dpkg-query -W -f='${Package} ${Version}\n' 'linux-image-*' 2>/dev/null \
+       | grep -vE 'unsigned|dbg|headers|modules' | head -1)
 cat > /etc/diknom-build <<EOF
 DIKNOM_VERSION=$VER
-DIKNOM_KERNEL=$KP
 DIKNOM_BASE=debian-$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2 | tr -d '"')
+DIKNOM_KERNEL=$KPKG
 DIKNOM_DESKTOP=$DESKTOP
 DIKNOM_DM=$DM
 DIKNOM_ARCH=$(dpkg --print-architecture)
@@ -128,4 +120,4 @@ fi
 
 chmod 0755 /usr/local/bin/pkg /usr/local/bin/dnfetch /usr/local/bin/help /usr/local/bin/diknom-about 2>/dev/null || true
 
-echo "hook DikNom OS selesai (desktop=$DESKTOP dm=$DM versi=$VER)"
+echo "hook DikNom OS selesai (desktop=$DESKTOP dm=$DM versi=$VER, user=root)"

@@ -50,9 +50,10 @@ XFCE 4.20, LXQt 2, MATE 1.26, LXDE 0.10).
 - `help` — bantuan bertopik.
 - `diknom-about` — menu Tentang yang menyebut penyusun dan menyatakan terus
   terang bahwa fondasinya Debian.
-- **Autologin root**, password `root1234`. User `diknom` (password `diknom`) juga
-  tersedia kalau kamu mau sesi non-root. Keduanya bisa diganti lewat
-  `passwd` di terminal, atau dari Settings setelah masuk.
+- **Satu-satunya akun di ISO ini: `root` dengan password `root1234`**, dan
+  autologin langsung sebagai root. Tidak ada user lain sebelum instalasi.
+  Setelah dipasang ke disk, pemilik mesin bebas membuat user sendiri lewat
+  Settings atau `useradd`/`passwd` di terminal.
 - Logo DikNom OS di splash boot, layar login (GDM/SDDM/LightDM), dan wallpaper.
 - `os-release` bermerek dengan `ID=debian` supaya apt dan alat sistem tetap
   mendeteksi basisnya dengan benar.

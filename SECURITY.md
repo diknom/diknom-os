@@ -16,12 +16,15 @@ Repo ini publik. Aturan keras:
 
 | Hal | Nilai | Alasan |
 |---|---|---|
-| Autologin | **root** (password `root1234`) | ISO live harus langsung bisa dipakai; ganti dengan `passwd` |
+| Autologin | **root** | ISO live harus langsung bisa dipakai; ganti dengan `passwd` |
 | Password root | `root1234` | standar live ISO; hanya konsol lokal, tidak ada layanan jaringan |
 | Layanan jaringan | tidak ada (sshd mati) | permukaan serangan nol |
 | SSH | tidak diinstal | ditambahkan nanti sebagai paket opsional |
 
-`diknom` tidak punya sudo dan tidak bisa jadi root tanpa password root.
+Hanya ada akun `root` (password `root1234`) dengan autologin. Ini pilihan sadar
+untuk ISO live: tidak ada layanan jaringan, tidak ada ssh, dan seluruh sesi
+berjalan lokal. Karena desktop berjalan sebagai root, beberapa aplikasi
+GNOME/KDE dapat menampilkan peringatan — itu wajar dan tidak merusak sistem.
 Untuk build berikutnya default ini akan dibuat bisa diubah saat boot.
 
 ## Melaporkan masalah
