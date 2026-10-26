@@ -43,3 +43,11 @@ CONFIG_KEYBOARD_ATKBD=y
 CONFIG_EFI=y
 CONFIG_EFI_STUB=y
 CONFIG_EFI_PARTITION=y
+
+# NIC bawaan (tanpa modul, initramfs tidak punya modprobe):
+# e1000 dipakai QEMU/VirtualBox secara default, virtio untuk KVM modern
+CONFIG_NET_CORE=y
+CONFIG_E1000=y
+CONFIG_E1000E=y
+CONFIG_VIRTIO_NET=y
+CONFIG_PCNET32=y

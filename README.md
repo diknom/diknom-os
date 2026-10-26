@@ -77,6 +77,28 @@ harus dikompilasi sendiri.
 | 0.4 | Repo paket `.dnp` sendiri (index di GitHub Releases) + `pkg install` dari repo |
 | 1.0 | Installer ke disk, dua rasa rilis stabil, uji boot di perangkat nyata |
 
+## Repo paket (mulai v0.2)
+
+`pkg` punya repo online sendiri di `repo/index.tab` dalam repo ini.
+
+    pkg update              unduh index
+    pkg search <kata>       cari paket
+    pkg install <nama>      pasang dari repo
+    pkg upgrade             perbarui paket terpasang
+
+Isi repo adalah **biner statis** (tanpa interpreter dinamis, tanpa referensi
+glibc), jadi satu paket jalan di Lite (musl) maupun di DikNom OS normal
+(glibc). Setiap unduhan diverifikasi sha256; kalau hash tidak cocok, paket
+ditolak. Verifikasi ini yang jadi jaminan integritas, bukan sertifikat TLS.
+
+Kenapa bukan apt/apk: keduanya terikat basis distro masing-masing. Paket
+`.deb` butuh dpkg + glibc Debian, `.apk` butuh apk-tools + repo Alpine. Untuk
+OS yang dibangun dari source, satu-satunya jalan jujur adalah repo sendiri.
+
+Cakupan paket saat ini kecil dan tidak saya lebihkan: `jq`, `fzf`, `rg`.
+Untuk i686 hanya `jq`, karena fzf dan ripgrep tidak lagi menerbitkan biner
+32-bit. Menambah paket = menambah baris index + sha256 yang sudah diverifikasi.
+
 ## Sesi grafis (mulai v0.2)
 
 Login di tty1 langsung menyalakan X lewat `/etc/profile.d/diknom-gui.sh`.

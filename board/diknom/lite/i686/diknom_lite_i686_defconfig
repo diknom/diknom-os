@@ -70,3 +70,9 @@ BR2_PACKAGE_LIBINPUT=y
 # input lewat udev (libinput butuh udev; mdev tidak cukup untuk desktop)
 BR2_PACKAGE_EUDEV=y
 BR2_PACKAGE_XAPP_TWM=y
+
+# --- kebutuhan pkg: unduh HTTPS dengan verifikasi sertifikat ---
+BR2_PACKAGE_OPENSSL=y
+BR2_PACKAGE_LIBCURL=y
+BR2_PACKAGE_LIBCURL_CURL=y
+BR2_PACKAGE_CA_CERTIFICATES=y
