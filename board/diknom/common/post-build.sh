@@ -40,6 +40,12 @@ for s in "$TARGET_DIR"/etc/init.d/S[0-9]*; do
     [ -e "$s" ] && chmod 0755 "$s"
 done
 
+# --- buang S40xorg bawaan Buildroot ---
+# Script itu menyalakan X server telanjang saat boot: layar jadi hitam karena
+# tidak ada window manager maupun terminal. Sesi kita sendiri yang menyalakan
+# X, lewat autologin tty1 -> startx -> .xinitrc.
+rm -f "$TARGET_DIR/etc/init.d/S40xorg"
+
 # --- buang dokumentasi berat (target 256 MB) ---
 rm -rf "$TARGET_DIR/usr/share/man" "$TARGET_DIR/usr/share/doc" "$TARGET_DIR/usr/share/info"
 

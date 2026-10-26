@@ -1,19 +1,22 @@
 #!/bin/sh
 # DikNom OS - sesi X
-# Memilih window manager yang tersedia: fluxbox (DikNom OS normal) atau
-# twm (DikNom OS Lite). Tidak bergantung pada yang tidak ada di sistem.
+# Urutan: latar -> terminal -> window manager. Kalau WM gagal, terminal tetap ada
+# sehingga mesin tidak pernah berakhir dengan layar kosong tanpa apa pun.
 
 xrdb -merge /etc/X11/Xresources 2>/dev/null || true
 xsetroot -solid "#1b2430" 2>/dev/null || true
 
-# satu terminal siap pakai
+# terminal siap pakai lebih dulu
 xterm -bg "#10151c" -fg "#c8d3dd" -geometry 100x28+60+60 &
+
+# beri waktu xterm memetakan jendela sebelum WM mengambil alih
+sleep 1
 
 if command -v fluxbox >/dev/null 2>&1; then
     exec fluxbox
 elif command -v twm >/dev/null 2>&1; then
     exec twm
 else
-    echo "Tidak ada window manager. Konsol tetap tersedia di tty2."
-    exec sh
+    echo "Tidak ada window manager terpasang."
+    wait
 fi
