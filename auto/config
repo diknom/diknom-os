@@ -1,24 +1,26 @@
 #!/bin/sh
 # DikNom OS - konfigurasi live-build
-# Dua rasa dari satu pohon: normal (GNOME) dan lite (XFCE).
+# Desktop dipilih lewat DIKNOM_DESKTOP, basis lewat DIKNOM_DISTRO.
 set -e
 
-FLAVOR="${DIKNOM_FLAVOR:-normal}"
+DESKTOP="${DIKNOM_DESKTOP:-gnome}"
 ARCH="${DIKNOM_ARCH:-amd64}"
-
-case "$FLAVOR" in
-    lite) PLIST="diknom-lite" ;;
-    *)    PLIST="diknom-normal" ;;
+# trixie (Debian 13) punya kernel 6.12 dan desktop terbaru, tetapi hanya amd64
+# yang masih lengkap. i386 tinggal di bookworm (6.1) karena Debian 13 tidak
+# lagi menerbitkan kernel/userspace i386.
+case "$ARCH" in
+    i386)  DISTRO="${DIKNOM_DISTRO:-bookworm}" ;;
+    *)     DISTRO="${DIKNOM_DISTRO:-trixie}" ;;
 esac
 
-# live-build memakai SEMUA *.list.chroot di config/package-lists.
-# Jadi pilih rasa dengan menyisihkan berkas yang tidak dipakai.
+# live-build memakai SEMUA *.list.chroot; sisihkan yang tidak dipakai.
 mkdir -p config/package-lists.off
 for f in config/package-lists/*.list.chroot; do
     [ -e "$f" ] || continue
-    [ "$(basename "$f")" = "${PLIST}.list.chroot" ] && continue
+    [ "$(basename "$f")" = "diknom-${DESKTOP}.list.chroot" ] && continue
     mv "$f" config/package-lists.off/
 done
+echo "desktop=$DESKTOP arch=$ARCH distro=$DISTRO"
 echo "daftar paket aktif: $(ls config/package-lists/*.list.chroot | xargs -n1 basename)"
 
 case "$ARCH" in
@@ -29,7 +31,7 @@ esac
 lb config noauto \
     --mode debian \
     --architectures "$ARCH" \
-    --distribution bookworm \
+    --distribution "$DISTRO" \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --apt-recommends \

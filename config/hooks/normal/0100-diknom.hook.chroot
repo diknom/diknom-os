@@ -1,5 +1,7 @@
 #!/bin/bash
 # DikNom OS - hook chroot: user, autologin, identitas versi.
+# Desktop dideteksi dari biner yang benar-benar terpasang, bukan dari nama rasa,
+# supaya autologin tidak pernah menunjuk sesi yang tidak ada.
 set -e
 
 VER="${DIKNOM_VERSION:-0.3}"
@@ -14,17 +16,23 @@ mkdir -p /etc/sudoers.d
 echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
 chmod 0440 /etc/sudoers.d/diknom
 
-# --- tentukan desktop yang benar-benar terpasang ---
-if [ -f /usr/bin/gnome-shell ]; then
-    DESKTOP="gnome"
-elif [ -f /usr/bin/startxfce4 ]; then
-    DESKTOP="xfce"
-else
-    DESKTOP="lain"
-fi
+# --- deteksi desktop & display manager ---
+if   [ -x /usr/bin/startplasma-x11 ]; then DESKTOP=kde;   SESSION=plasmax11
+elif [ -x /usr/bin/gnome-shell ];     then DESKTOP=gnome; SESSION=gnome
+elif [ -x /usr/bin/startxfce4 ];      then DESKTOP=xfce;  SESSION=xfce
+elif [ -x /usr/bin/startlxqt ];       then DESKTOP=lxqt;  SESSION=lxqt
+elif [ -x /usr/bin/mate-session ];    then DESKTOP=mate;  SESSION=mate
+elif [ -x /usr/bin/startlxde ];       then DESKTOP=lxde;  SESSION=LXDE
+else DESKTOP=lain; SESSION=; fi
 
-# --- autologin ---
-if [ "$DESKTOP" = "gnome" ] && [ -d /etc/gdm3 ]; then
+if   [ -x /usr/sbin/gdm3 ] || [ -x /usr/sbin/gdm ]; then DM=gdm
+elif [ -x /usr/sbin/sddm ] || [ -x /usr/bin/sddm ]; then DM=sddm
+elif [ -x /usr/sbin/lightdm ]; then DM=lightdm
+else DM=none; fi
+
+# --- autologin sesuai DM ---
+case "$DM" in
+  gdm)
     mkdir -p /etc/gdm3
     cat > /etc/gdm3/daemon.conf <<EOF
 [daemon]
@@ -33,41 +41,48 @@ AutomaticLogin=diknom
 WaylandEnable=false
 TimedLoginEnable=false
 EOF
-    # layar login tidak menahan boot
-    cat > /etc/gdm3/custom.conf <<EOF
-[daemon]
-AutomaticLoginEnable=true
-AutomaticLogin=diknom
-WaylandEnable=false
+    ;;
+  sddm)
+    mkdir -p /etc/sddm.conf.d
+    cat > /etc/sddm.conf.d/99-diknom.conf <<EOF
+[Autologin]
+User=diknom
+Session=${SESSION}.desktop
+Relogin=false
 EOF
-else
+    ;;
+  lightdm)
     mkdir -p /etc/lightdm/lightdm.conf.d
     cat > /etc/lightdm/lightdm.conf.d/99-diknom.conf <<EOF
 [Seat:*]
 autologin-user=diknom
 autologin-user-timeout=0
-autologin-session=xfce
+autologin-session=${SESSION}
 greeter-hide-users=false
 EOF
-fi
+    ;;
+  *)
+    echo "PERINGATAN: tidak ada display manager terpasang" ;;
+esac
 
-# --- tandai desktop & versi ---
+# --- metadata ---
 echo "$DESKTOP" > /etc/diknom-desktop
+echo "$DM" > /etc/diknom-dm
 cat > /etc/diknom-build <<EOF
 DIKNOM_VERSION=$VER
-DIKNOM_BASE=debian-bookworm
+DIKNOM_BASE=debian-$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2 | tr -d '"')
 DIKNOM_DESKTOP=$DESKTOP
+DIKNOM_DM=$DM
 DIKNOM_ARCH=$(dpkg --print-architecture)
 DIKNOM_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 DIKNOM_BUILT_BY=github-actions
 EOF
 
-# --- versi di identitas ---
 for f in /etc/os-release /etc/issue /etc/motd /usr/local/bin/diknom-about; do
     [ -f "$f" ] && sed -i "s/@VERSION@/${VER}/g" "$f"
 done
 
-# --- wallpaper bawaan ---
+# --- wallpaper ---
 if [ -f /usr/share/backgrounds/diknom-os.png ]; then
     if [ -d /etc/xdg/xfce4/xfconf/xfce-perchannel-xml ]; then
         cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'XFCE'
@@ -86,24 +101,18 @@ if [ -f /usr/share/backgrounds/diknom-os.png ]; then
 </channel>
 XFCE
     fi
-    # GNOME: set wallpaper untuk user diknom lewat dconf sistem
     mkdir -p /etc/dconf/db/local.d /etc/dconf/profile
-    cat > /etc/dconf/profile/user <<'PROF'
-user-db:user
-system-db:local
-PROF
+    printf 'user-db:user\nsystem-db:local\n' > /etc/dconf/profile/user
     cat > /etc/dconf/db/local.d/00-diknom <<'DCONF'
 [org/gnome/desktop/background]
 picture-uri='file:///usr/share/backgrounds/diknom-os.png'
 picture-uri-dark='file:///usr/share/backgrounds/diknom-os.png'
 picture-options='scaled'
 primary-color='#1b2430'
-[org/gnome/desktop/interface]
-clock-format='24h'
 DCONF
     command -v dconf >/dev/null 2>&1 && dconf update || true
 fi
 
 chmod 0755 /usr/local/bin/pkg /usr/local/bin/dnfetch /usr/local/bin/help /usr/local/bin/diknom-about 2>/dev/null || true
 
-echo "hook DikNom OS selesai (desktop=$DESKTOP versi=$VER)"
+echo "hook DikNom OS selesai (desktop=$DESKTOP dm=$DM versi=$VER)"

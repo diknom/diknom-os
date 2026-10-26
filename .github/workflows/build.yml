@@ -15,32 +15,34 @@ concurrency:
 
 jobs:
   build:
-    name: ${{ matrix.flavor }} / ${{ matrix.arch }}
+    name: ${{ matrix.desktop }} / ${{ matrix.arch }}
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 8
       matrix:
         include:
-          - flavor: normal
-            arch: amd64
-            qemu: qemu-system-x86_64
-            product: diknom-os
-          - flavor: normal
-            arch: i386
-            qemu: qemu-system-i386
-            product: diknom-os
-          - flavor: lite
-            arch: amd64
-            qemu: qemu-system-x86_64
-            product: diknom-os-lite
-          - flavor: lite
-            arch: i386
-            qemu: qemu-system-i386
-            product: diknom-os-lite
+          # 64-bit: Debian 13 (trixie) - kernel 6.12 + desktop terbaru
+          - { desktop: gnome, arch: amd64, qemu: qemu-system-x86_64 }
+          - { desktop: kde,   arch: amd64, qemu: qemu-system-x86_64 }
+          - { desktop: xfce,  arch: amd64, qemu: qemu-system-x86_64 }
+          - { desktop: lxqt,  arch: amd64, qemu: qemu-system-x86_64 }
+          - { desktop: mate,  arch: amd64, qemu: qemu-system-x86_64 }
+          - { desktop: lxde,  arch: amd64, qemu: qemu-system-x86_64 }
+          # 32-bit: Debian 12 (bookworm) - Debian 13 tidak lagi menerbitkan i386
+          - { desktop: xfce,  arch: i386,  qemu: qemu-system-i386 }
+          - { desktop: lxde,  arch: i386,  qemu: qemu-system-i386 }
     steps:
       - uses: actions/checkout@v4
+
+      - name: Kosongkan disk (ISO desktop besar)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          sudo docker image prune --all --force || true
+          sudo apt-get clean
+          df -h /
 
       - name: Dependensi host
         run: |
@@ -53,14 +55,11 @@ jobs:
 
       - name: Konfigurasi live-build
         run: |
-          DIKNOM_FLAVOR="${{ matrix.flavor }}" \
+          DIKNOM_DESKTOP="${{ matrix.desktop }}" \
           DIKNOM_ARCH="${{ matrix.arch }}" \
           bash auto/config
-          echo "--- paket list dipakai ---"
-          ls config/package-lists/
-          grep -h . config/package-lists/*.list.chroot | head -5
 
-      - name: Bangun ISO (${{ matrix.flavor }} / ${{ matrix.arch }})
+      - name: Bangun ISO (${{ matrix.desktop }} / ${{ matrix.arch }})
         run: |
           set -o pipefail
           export DIKNOM_VERSION="$(tr -d '[:space:]' < VERSION)"
@@ -71,12 +70,12 @@ jobs:
           VER=$(tr -d '[:space:]' < VERSION)
           SRC=$(ls -1 live-image-*.hybrid.iso 2>/dev/null | head -1)
           [ -n "$SRC" ] || { echo "ISO tidak ditemukan"; ls -lh; exit 1; }
-          OUT="${{ matrix.product }}-${VER}-${{ matrix.arch }}.iso"
+          OUT="diknom-os-${{ matrix.desktop }}-${VER}-${{ matrix.arch }}.iso"
           mv "$SRC" "$OUT"
           ls -lh "$OUT"
           echo "ISO=$OUT" >> "$GITHUB_ENV"
 
-      - name: Smoke test QEMU (boot, login, apt lewat pkg)
+      - name: Smoke test QEMU (boot, login, pkg lewat apt)
         run: |
           set +e
           rm -f qemu.log /tmp/serial.sock
@@ -85,7 +84,7 @@ jobs:
             -serial unix:/tmp/serial.sock,server,nowait \
             -no-reboot -accel tcg &
           QPID=$!
-          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 900
+          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 1200
           RC=$?
           kill $QPID 2>/dev/null
           wait $QPID 2>/dev/null
@@ -97,7 +96,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qemu-log-${{ matrix.flavor }}-${{ matrix.arch }}
+          name: qemu-log-${{ matrix.desktop }}-${{ matrix.arch }}
           path: qemu.log
           retention-days: 30
           if-no-files-found: ignore
@@ -105,7 +104,7 @@ jobs:
       - name: Simpan ISO
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.flavor }}-${{ matrix.arch }}
+          name: ${{ matrix.desktop }}-${{ matrix.arch }}
           path: "*.iso"
           retention-days: 90
 

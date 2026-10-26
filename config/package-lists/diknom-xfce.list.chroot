@@ -1,4 +1,4 @@
-# DikNom OS Lite - desktop XFCE, lebih ringan dari GNOME
+# DikNom OS - desktop XFCE
 xfce4
 xfce4-terminal
 thunar
@@ -10,11 +10,15 @@ network-manager
 network-manager-gnome
 firmware-linux
 firmware-iwlwifi
+git
+python3
 curl
 wget
 nano
 htop
+zenity
 sudo
 locales
 console-setup
 libgl1-mesa-dri
+mesa-utils

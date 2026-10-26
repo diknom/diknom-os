@@ -1,0 +1,23 @@
+# DikNom OS - desktop MATE
+task-mate-desktop
+mate-terminal
+caja
+pluma
+lightdm
+lightdm-gtk-greeter
+network-manager
+network-manager-gnome
+firmware-linux
+firmware-iwlwifi
+git
+python3
+curl
+wget
+nano
+htop
+zenity
+sudo
+locales
+console-setup
+libgl1-mesa-dri
+mesa-utils

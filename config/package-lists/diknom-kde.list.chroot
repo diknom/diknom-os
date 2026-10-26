@@ -1,0 +1,22 @@
+# DikNom OS - desktop KDE Plasma
+task-kde-desktop
+sddm
+kde-config-sddm
+firefox-esr
+kde-spectacle
+network-manager
+network-manager-gnome
+firmware-linux
+firmware-iwlwifi
+git
+python3
+curl
+wget
+nano
+htop
+zenity
+sudo
+locales
+console-setup
+libgl1-mesa-dri
+mesa-utils
