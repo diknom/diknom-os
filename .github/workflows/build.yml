@@ -47,11 +47,15 @@ jobs:
       - name: Dependensi host
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          sudo apt-get install -y --no-install-recommends debian-archive-keyring --no-install-recommends \
             live-build debootstrap squashfs-tools xorriso \
             isolinux syslinux-common syslinux-efi grub-pc-bin grub-efi-amd64-bin \
             grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
             python3 curl ca-certificates
+          # Kunci arsip Debian wajib ada: debootstrap menolak jalan tanpa
+          # /usr/share/keyrings/debian-archive-keyring.gpg ("Keyring-based
+          # check was requested; aborting accordingly").
+          test -f /usr/share/keyrings/debian-archive-keyring.gpg && echo "kunci Debian: ada"
 
       - name: Pasang live-build dari Debian
         run: |
