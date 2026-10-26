@@ -102,6 +102,9 @@ jobs:
           dpkg -s live-build | grep -E '^(Package|Version)'
           lb --version
 
+      - name: Opsi timeout bootloader (diagnostik)
+        run: lb config --help 2>/dev/null | grep -iE "timeout|prompt" | head -10 || true
+
       - name: Konfigurasi live-build
         run: |
           DIKNOM_DESKTOP="${{ matrix.desktop }}" \
@@ -165,7 +168,10 @@ jobs:
             -no-reboot -accel tcg 2> qemu.err &
           QPID=$!
           # Melihat layar: kalau serial bisu, penyebabnya ada di sini
-          ( sleep 45; python3 tools/screen.py /tmp/mon.sock /tmp/screen-a.ppm || true
+          # Menu boot menunggu Enter (tampil di VGA, bukan serial), jadi tes
+          # harus menekannya lewat monitor QEMU.
+          ( sleep 25; python3 tools/key.py /tmp/mon.sock ret ret ret || true
+            sleep 40; python3 tools/screen.py /tmp/mon.sock /tmp/screen-a.ppm || true
             sleep 120; python3 tools/screen.py /tmp/mon.sock /tmp/screen-b.ppm || true ) &
           python3 tools/smoke-test.py /tmp/serial.sock qemu.log 600
           RC=$?
