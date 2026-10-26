@@ -80,7 +80,7 @@ if ok:
     ok &= check(wait_for(b"assword:", 60), "prompt password muncul")
 
 if ok:
-    send("diknom\n")
+    send("root\n")
     ok &= check(wait_for(b"# ", 90), "shell root didapat setelah login")
 
 if ok:
