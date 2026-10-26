@@ -72,6 +72,22 @@ if sock is None:
     print("GAGAL  tidak bisa tersambung ke socket serial QEMU", flush=True)
     sys.exit(2)
 
+# Diagnostik awal. Kalau tidak ada satu byte pun dalam 120 detik, penyebabnya
+# bukan login yang lambat: bootloader tidak pernah menjalankan kernel, atau
+# kernel tidak menulis ke ttyS0. Lebih baik gagal cepat daripada menunggu 20
+# menit dan tetap tidak tahu apa-apa.
+start = time.time()
+while time.time() - start < 120 and not buf:
+    pump(1.0)
+
+if not buf:
+    print("GAGAL  tidak ada keluaran serial sama sekali dalam 120 detik", flush=True)
+    print("        artinya kernel tidak pernah dijalankan (bootloader gagal),", flush=True)
+    print("        atau kernel tidak menulis ke console=ttyS0", flush=True)
+    sys.exit(3)
+
+print("OK    konsol serial hidup (%d byte pertama diterima)" % len(buf), flush=True)
+
 ok = True
 ok &= check(wait_for(b"login:", BOOT_TIMEOUT), "kernel boot sampai prompt login")
 

@@ -97,6 +97,35 @@ jobs:
           ls -lh "$OUT"
           echo "ISO=$OUT" >> "$GITHUB_ENV"
 
+      - name: Periksa isi ISO
+        run: |
+          set -e
+          echo "--- ukuran ---"
+          ls -lh "$ISO"
+          echo "--- berkas penting (xorriso) ---"
+          xorriso -indev "$ISO" -find /live /boot -maxdepth 2 -name '*vmlinuz*' -o -name '*initrd*' -o -name 'grub.cfg' -o -name 'isolinux.cfg' 2>/dev/null | sed 's/^/  /'
+          echo "--- grub.cfg: baris kernel ---"
+          rm -rf /tmp/iso && mkdir -p /tmp/iso
+          xorriso -osirrox on -indev "$ISO" -extract /boot/grub/grub.cfg /tmp/iso/grub.cfg 2>/dev/null || true
+          xorriso -osirrox on -indev "$ISO" -extract /isolinux/isolinux.cfg /tmp/iso/isolinux.cfg 2>/dev/null || true
+          for f in /tmp/iso/grub.cfg /tmp/iso/isolinux.cfg; do
+            [ -f "$f" ] || continue
+            echo "== $f =="
+            grep -E "linux|append|kernel|initrd" "$f" | head -12
+          done
+          echo "--- El Torito ---"
+          xorriso -indev "$ISO" -report_el_torito plain 2>/dev/null | grep -i "el torito" | head -3
+
+      - name: Simpan ISO
+        # ISO diunggah SEBELUM smoke test: kalau boot gagal, ISO-nya tetap bisa
+        # diunduh dan diperiksa, tidak ikut hilang bersama job yang gagal.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.desktop }}-${{ matrix.arch }}
+          path: "*.iso"
+          retention-days: 90
+
       - name: Smoke test QEMU (boot, login, pkg lewat apt)
         run: |
           set +e
@@ -104,12 +133,14 @@ jobs:
           ${{ matrix.qemu }} -m 2048 -cdrom "$ISO" -boot d \
             -display none -monitor none \
             -serial unix:/tmp/serial.sock,server,nowait \
-            -no-reboot -accel tcg &
+            -no-reboot -accel tcg 2> qemu.err &
           QPID=$!
           python3 tools/smoke-test.py /tmp/serial.sock qemu.log 1200
           RC=$?
           kill $QPID 2>/dev/null
           wait $QPID 2>/dev/null
+          echo "---- stderr QEMU ----"
+          cat qemu.err 2>/dev/null | head -20
           echo "---- 40 baris terakhir konsol ----"
           tail -n 40 qemu.log | tr -d '\r'
           exit $RC
@@ -122,13 +153,6 @@ jobs:
           path: qemu.log
           retention-days: 30
           if-no-files-found: ignore
-
-      - name: Simpan ISO
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.desktop }}-${{ matrix.arch }}
-          path: "*.iso"
-          retention-days: 90
 
   release:
     name: Terbitkan Release
