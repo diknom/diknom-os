@@ -24,6 +24,7 @@ config/common
 config/source
 config/binary_*
 config/package-lists.off/
+config/archives/00-diknom.list.chroot
 
 # Python bytecode
 __pycache__/

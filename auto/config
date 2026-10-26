@@ -5,15 +5,16 @@ set -e
 
 DESKTOP="${DIKNOM_DESKTOP:-gnome}"
 ARCH="${DIKNOM_ARCH:-amd64}"
-# trixie (Debian 13) punya kernel 6.12 dan desktop terbaru, tetapi hanya amd64
-# yang masih lengkap. i386 tinggal di bookworm (6.1) karena Debian 13 tidak
-# lagi menerbitkan kernel/userspace i386.
+
+# trixie (Debian 13) = kernel 6.12 + desktop terbaru, hanya amd64.
+# i386 tetap bookworm (6.1) karena Debian 13 tidak menerbitkan i386 lagi.
 case "$ARCH" in
     i386)  DISTRO="${DIKNOM_DISTRO:-bookworm}" ;;
     *)     DISTRO="${DIKNOM_DISTRO:-trixie}" ;;
 esac
 
-# live-build memakai SEMUA *.list.chroot; sisihkan yang tidak dipakai.
+# Pilih rasa desktop: live-build memakai SEMUA *.list.chroot, jadi sisihkan
+# yang tidak dipakai.
 mkdir -p config/package-lists.off
 for f in config/package-lists/*.list.chroot; do
     [ -e "$f" ] || continue
@@ -22,6 +23,19 @@ for f in config/package-lists/*.list.chroot; do
 done
 echo "desktop=$DESKTOP arch=$ARCH distro=$DISTRO"
 echo "daftar paket aktif: $(ls config/package-lists/*.list.chroot | xargs -n1 basename)"
+
+# Sumber apt sendiri. live-build versi Ubuntu menulis baris keamanan lama
+# ("$DISTRO/updates") yang tidak ada lagi di Debian, dan itu menggagalkan
+# apt update. Jadi keamanan dimatikan di lb config dan ditulis manual di sini
+# dengan skema yang benar ("debian-security $DISTRO-security").
+mkdir -p config/archives
+cat > config/archives/00-diknom.list.chroot <<EOF
+deb http://deb.debian.org/debian $DISTRO main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian ${DISTRO}-updates main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security ${DISTRO}-security main contrib non-free non-free-firmware
+EOF
+echo "sumber apt:"
+cat config/archives/00-diknom.list.chroot
 
 case "$ARCH" in
     i386) LF="--linux-flavours 686-pae" ;;
@@ -35,6 +49,7 @@ lb config noauto \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --apt-recommends \
+    --security false \
     --debian-installer none \
     --memtest none \
     --iso-application "DikNom OS" \
