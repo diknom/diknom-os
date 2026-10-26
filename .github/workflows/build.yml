@@ -53,36 +53,22 @@ jobs:
             grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
             python3 curl ca-certificates
 
-      - name: Patch skema keamanan live-build
+      - name: Pasang live-build dari Debian
         run: |
-          # live-build versi Ubuntu menulis sources.list dengan skema lama:
-          #   deb http://security.debian.org <distro>/updates main
-          # Debian modern memakai <distro>-security. Repo lama tidak ada, dan
-          # apt update gagal -> build berhenti. Opsi --security false diabaikan
-          # versi ini, jadi string-nya diperbaiki langsung di skrip live-build.
-          echo "--- berkas live-build yang menyebut /updates ---"
-          FILES=$(sudo grep -rl '/updates' /usr/lib/live/build /usr/share/live/build 2>/dev/null || true)
-          echo "$FILES"
-          for f in $FILES; do
-            sudo cp "$f" "$f.bak"
-            sudo sed -i 's|/updates|-security|g' "$f"
-            echo "diubah: $f"
-          done
-          echo "--- verifikasi ---"
-          for f in $FILES; do grep -n "security" "$f" | head -3; done
-
-          # Debian memindahkan indeks Contents ke dists/<suite>/main/, sedangkan
-          # live-build mencarinya di dists/<suite>/ lalu gagal 404 pada
-          # "lb_chroot_linux-image" (pencarian paket kernel).
-          echo "--- patch jalur Contents ---"
-          CFILES=$(sudo grep -rl 'Contents-' /usr/lib/live/build /usr/share/live/build 2>/dev/null || true)
-          echo "$CFILES"
-          for f in $CFILES; do
-            sudo sed -i 's|/main/Contents-|/Contents-|g' "$f"   # normalkan dulu
-            sudo sed -i 's|/Contents-|/main/Contents-|g' "$f"   # lalu tambahkan /main
-            echo "diubah: $f"
-            grep -n "Contents-" "$f" | head -3
-          done
+          # live-build bawaan Ubuntu terlalu tua: ia masih menulis sources.list
+          # skema lama (distro/updates) dan mencari Contents di jalur lama,
+          # sehingga build Debian 13 gagal berulang di tempat berbeda-beda.
+          # Pakai live-build dari Debian sendiri yang sudah mengenal trixie.
+          sudo apt-get remove -y live-build >/dev/null 2>&1 || true
+          cd /tmp
+          POOL=http://deb.debian.org/debian/pool/main/l/live-build/
+          LBV=$(curl -s "$POOL" | grep -o 'live-build_[^"]*_all\.deb' | sort -V | tail -1)
+          echo "versi Debian terpilih: $LBV"
+          wget -q "$POOL$LBV" -O live-build.deb
+          sudo dpkg -i live-build.deb || sudo apt-get -f install -y
+          echo "--- versi terpasang ---"
+          dpkg -s live-build | grep -E '^(Package|Version)'
+          lb --version
 
       - name: Konfigurasi live-build
         run: |
