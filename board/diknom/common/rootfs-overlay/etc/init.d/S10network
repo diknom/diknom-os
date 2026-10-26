@@ -1,9 +1,0 @@
-#!/bin/sh
-# DikNom OS - jaringan dasar (hanya kalau ada interface kabel)
-
-IFACE=eth0
-[ -e "/sys/class/net/$IFACE" ] || exit 0
-
-ip link set "$IFACE" up 2>/dev/null
-udhcpc -i "$IFACE" -q -n -b -t 3 >/dev/null 2>&1
-echo "DikNom OS: jaringan $IFACE dicoba"

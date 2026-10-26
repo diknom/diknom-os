@@ -1,0 +1,15 @@
+# DikNom OS Lite - desktop LXDE, sasaran RAM kecil
+lxde-core
+lightdm
+lightdm-gtk-greeter
+network-manager
+network-manager-gnome
+firmware-linux
+firmware-iwlwifi
+curl
+nano
+htop
+xterm
+sudo
+locales
+console-setup

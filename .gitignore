@@ -1,4 +1,4 @@
-# Kredensial — jangan pernah masuk repo
+# Kredensial
 .env
 .env.*
 !.env.example
@@ -7,26 +7,27 @@
 *.p12
 id_rsa*
 id_ed25519*
-*.token
 secrets.yml
 
-# Hasil build
-buildroot/
-output/
+# Keluaran live-build (dibuat saat build, jangan di-commit)
+binary/
+chroot/
+.build/
+cache/
 *.iso
 *.img
-*.cpio
-*.cpio.gz
-bzImage
-*.tar.gz
-br-dl/
-
-# Sampah
 *.log
-*.swp
-.DS_Store
-Thumbs.db
+config/binary
+config/bootstrap
+config/chroot
+config/common
+config/source
+config/binary_*
 
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Sampah
+.DS_Store
+Thumbs.db

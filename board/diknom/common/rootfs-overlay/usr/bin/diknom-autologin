@@ -1,4 +1,0 @@
-#!/bin/sh
-# DikNom OS - autologin user diknom di tty1.
-# Dipanggil oleh getty, jadi tty sudah menjadi controlling terminal.
-exec /bin/login -f diknom

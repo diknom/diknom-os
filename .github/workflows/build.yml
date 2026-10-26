@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -18,160 +17,81 @@ jobs:
   build:
     name: ${{ matrix.flavor }} / ${{ matrix.arch }}
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
         include:
-          # ---- DikNom OS Lite : di bawah 256 MB ----
-          - flavor: lite
-            arch: x86_64
-            dir: lite/x86_64
-            defconfig: diknom_lite_x86_64_defconfig
-            qemu: qemu-system-x86_64
-            ram: 256
-          - flavor: lite
-            arch: i686
-            dir: lite/i686
-            defconfig: diknom_lite_i686_defconfig
-            qemu: qemu-system-i386
-            ram: 256
-          # ---- DikNom OS : normal, minimum 2 GB ----
           - flavor: normal
-            arch: x86_64
-            dir: normal/x86_64
-            defconfig: diknom_x86_64_defconfig
+            arch: amd64
             qemu: qemu-system-x86_64
-            ram: 2048
+            product: diknom-os
           - flavor: normal
-            arch: i686
-            dir: normal/i686
-            defconfig: diknom_i686_defconfig
+            arch: i386
             qemu: qemu-system-i386
-            ram: 2048
-    env:
-      BR2_DL_DIR: ${{ github.workspace }}/br-dl
+            product: diknom-os
+          - flavor: lite
+            arch: amd64
+            qemu: qemu-system-x86_64
+            product: diknom-os-lite
+          - flavor: lite
+            arch: i386
+            qemu: qemu-system-i386
+            product: diknom-os-lite
     steps:
       - uses: actions/checkout@v4
-
-      - name: Kosongkan disk (build ini butuh ~20 GB)
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-                      /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
-          sudo docker image prune --all --force || true
-          df -h /
 
       - name: Dependensi host
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential git wget cpio unzip rsync bc \
-            libncurses-dev libssl-dev libelf-dev flex bison \
-            python3 file patch perl tar gzip bzip2 \
-            grub-common grub-pc-bin grub-efi-amd64-bin grub-efi-ia32-bin \
-            xorriso mtools dosfstools qemu-system-x86
+            live-build debootstrap squashfs-tools xorriso \
+            isolinux syslinux-common syslinux-efi grub-pc-bin grub-efi-amd64-bin \
+            grub-efi-ia32-bin mtools dosfstools qemu-system-x86 \
+            python3 curl ca-certificates
 
-      - name: Cache download Buildroot
-        uses: actions/cache@v4
-        with:
-          path: br-dl
-          key: br-dl-${{ matrix.flavor }}-${{ matrix.arch }}-${{ hashFiles('board/diknom/**', 'VERSION') }}
-          restore-keys: |
-            br-dl-${{ matrix.flavor }}-${{ matrix.arch }}-
-            br-dl-${{ matrix.arch }}-
-
-      - name: Cache ccache (percepat rebuild berikutnya)
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildroot-ccache
-          key: ccache-${{ matrix.flavor }}-${{ matrix.arch }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-${{ matrix.flavor }}-${{ matrix.arch }}-
-            ccache-${{ matrix.arch }}-
-
-      - name: Verifikasi tooling boot
+      - name: Konfigurasi live-build
         run: |
-          echo "--- grub-mkrescue ---"; grub-mkrescue --version
-          echo "--- modul grub tersedia ---"
-          ls /usr/lib/grub/ 2>/dev/null || true
-          for d in i386-pc x86_64-efi i386-efi; do
-            test -d "/usr/lib/grub/$d" && echo "  ada: $d" || echo "  TIDAK ADA: $d"
-          done
-          echo "--- xorriso ---"; xorriso -version 2>&1 | head -3
-          echo "--- mtools ---"; mformat --version 2>&1 | head -1 || true
+          DIKNOM_FLAVOR="${{ matrix.flavor }}" \
+          DIKNOM_ARCH="${{ matrix.arch }}" \
+          bash auto/config
+          echo "--- paket list dipakai ---"
+          ls config/package-lists/
+          grep -h . config/package-lists/*.list.chroot | head -5
 
-      - name: Ambil Buildroot (LTS 2024.02.x)
-        run: git clone --depth 1 -b 2024.02.x https://github.com/buildroot/buildroot.git buildroot
-
-      - name: Pastikan skrip executable
-        run: |
-          # Windows tidak menyimpan bit executable; git menyimpan mode 644.
-          chmod +x board/diknom/common/*.sh tools/*.sh
-          ls -l board/diknom/common/*.sh tools/*.sh
-
-      - name: Konfigurasi DikNom OS
-        run: |
-          cd buildroot
-          mkdir -p board
-          ln -sfn "$GITHUB_WORKSPACE/board/diknom" board/diknom
-          make BR2_DEFCONFIG="board/diknom/${{ matrix.dir }}/${{ matrix.defconfig }}" defconfig
-          echo "--- arsitektur terpilih ---"
-          grep -E '^BR2_(x86_64|i386)=' .config
-          echo "--- libc terpilih ---"
-          grep -E '^BR2_TOOLCHAIN_BUILDROOT_(MUSL|GLIBC)=' .config
-          echo "--- overlay & skrip ---"
-          grep -E '^BR2_ROOTFS_(OVERLAY|POST_BUILD_SCRIPT|POST_IMAGE_SCRIPT)=' .config
-
-      - name: "Gerbang: opsi konfigurasi tidak boleh dibuang kconfig"
-        run: |
-          cd buildroot
-          bash "$GITHUB_WORKSPACE/tools/verify-config.sh" \
-            "$GITHUB_WORKSPACE/board/diknom/${{ matrix.dir }}/${{ matrix.defconfig }}" \
-            .config
-
-      - name: Build dari source (toolchain + kernel + rootfs)
+      - name: Bangun ISO (${{ matrix.flavor }} / ${{ matrix.arch }})
         run: |
           set -o pipefail
-          cd buildroot
-          export DIKNOM_ARCH="${{ matrix.arch }}"
-          export DIKNOM_FLAVOR="${{ matrix.flavor }}"
-          export DIKNOM_VERSION="$(cat ../VERSION | tr -d '[:space:]')"
-          make -j"$(nproc)" 2>&1 | tail -n 300
+          export DIKNOM_VERSION="$(tr -d '[:space:]' < VERSION)"
+          sudo -E env DIKNOM_VERSION="$DIKNOM_VERSION" lb build 2>&1 | tail -n 250
 
-      - name: Verifikasi hasil
+      - name: Beri nama ISO
         run: |
-          ls -lh buildroot/output/images/ || true
           VER=$(tr -d '[:space:]' < VERSION)
-          if [ "${{ matrix.flavor }}" = "lite" ]; then PREFIX=diknom-os-lite; else PREFIX=diknom-os; fi
-          ISO="buildroot/output/images/${PREFIX}-${VER}-${{ matrix.arch }}.iso"
-          echo "ISO=$ISO" >> "$GITHUB_ENV"
-          ls -lh "$ISO"
-          file "$ISO"
+          SRC=$(ls -1 live-image-*.hybrid.iso 2>/dev/null | head -1)
+          [ -n "$SRC" ] || { echo "ISO tidak ditemukan"; ls -lh; exit 1; }
+          OUT="${{ matrix.product }}-${VER}-${{ matrix.arch }}.iso"
+          mv "$SRC" "$OUT"
+          ls -lh "$OUT"
+          echo "ISO=$OUT" >> "$GITHUB_ENV"
 
-      - name: Smoke test QEMU (RAM ${{ matrix.ram }} MB)
+      - name: Smoke test QEMU (boot, login, apt lewat pkg)
         run: |
           set +e
           rm -f qemu.log /tmp/serial.sock
-          ${{ matrix.qemu }} -m ${{ matrix.ram }} -cdrom "$ISO" -boot d \
+          ${{ matrix.qemu }} -m 2048 -cdrom "$ISO" -boot d \
             -display none -monitor none \
             -serial unix:/tmp/serial.sock,server,nowait \
             -no-reboot -accel tcg &
           QPID=$!
-          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 420
+          python3 tools/smoke-test.py /tmp/serial.sock qemu.log 900
           RC=$?
           kill $QPID 2>/dev/null
           wait $QPID 2>/dev/null
           echo "---- 40 baris terakhir konsol ----"
           tail -n 40 qemu.log | tr -d '\r'
           exit $RC
-
-      - name: Simpan ccache (juga saat job gagal)
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: ~/.buildroot-ccache
-          key: ccache-${{ matrix.flavor }}-${{ matrix.arch }}-${{ github.run_id }}
 
       - name: Simpan log QEMU
         if: always()
@@ -186,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.flavor }}-${{ matrix.arch }}
-          path: buildroot/output/images/*.iso
+          path: "*.iso"
           retention-days: 90
 
   release:
@@ -199,8 +119,7 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - name: Daftar file
-        run: ls -lh dist
+      - run: ls -lh dist
       - name: Buat release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,26 @@
+# DikNom OS normal - desktop XFCE lengkap, siap kerja
+task-xfce-desktop
+lightdm
+lightdm-gtk-greeter
+xfce4-terminal
+thunar
+mousepad
+ristretto
+file-roller
+network-manager
+network-manager-gnome
+firmware-linux
+firmware-iwlwifi
+firefox-esr
+git
+python3
+python3-pip
+build-essential
+curl
+wget
+nano
+htop
+zenity
+sudo
+locales
+console-setup

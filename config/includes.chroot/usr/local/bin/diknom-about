@@ -1,0 +1,23 @@
+#!/bin/sh
+# Tentang DikNom OS - menyebut penyusun, bukan mengklaim menulis semua komponen
+TEKS="<big><b>DikNom OS @VERSION@</b></big>
+
+Distro Linux yang <b>disusun</b> oleh
+<b>Dikki Nomiarki</b> di atas fondasi Debian 12 (bookworm).
+
+Kernel Linux, XFCE/LXDE, dan seluruh paket sistem adalah
+perangkat lunak yang sudah ada. DikNom OS memilih, mengonfigurasi,
+memberi identitas, dan membangun ISO-nya.
+
+Kernel : $(uname -r)
+Layar  : ${DISPLAY:-konsol}
+
+github.com/diknom/diknom-os"
+
+if command -v zenity >/dev/null 2>&1; then
+    exec zenity --info --title="Tentang DikNom OS" --width=460 --height=300 --text="$TEKS"
+elif command -v xmessage >/dev/null 2>&1; then
+    exec xmessage -center "$TEKS"
+else
+    printf '%s\n' "$TEKS"
+fi

@@ -1,0 +1,35 @@
+#!/bin/sh
+# DikNom OS - konfigurasi live-build
+# Dua rasa dari satu pohon: normal (XFCE) dan lite (LXDE).
+set -e
+
+FLAVOR="${DIKNOM_FLAVOR:-normal}"
+ARCH="${DIKNOM_ARCH:-amd64}"
+
+case "$FLAVOR" in
+    lite) PLIST="diknom-lite" ;;
+    *)    PLIST="diknom-normal" ;;
+esac
+
+case "$ARCH" in
+    i386) LF="--linux-flavours 686-pae" ;;
+    *)    LF="" ;;
+esac
+
+lb config noauto \
+    --mode debian \
+    --architectures "$ARCH" \
+    --distribution bookworm \
+    --archive-areas "main contrib non-free non-free-firmware" \
+    --binary-images iso-hybrid \
+    --debian-installer none \
+    --memtest none \
+    --bootloader-timeout 6 \
+    --apt-recommends true \
+    --package-lists "$PLIST" \
+    --iso-application "DikNom OS" \
+    --iso-publisher "Dikki Nomiarki" \
+    --iso-volume "DIKNOM_OS" \
+    $LF \
+    --bootappend-live "boot=live components quiet splash console=tty0 console=ttyS0,115200" \
+    "${@}"

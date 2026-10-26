@@ -1,0 +1,22 @@
+#!/bin/sh
+B='\033[1m'; G='\033[0;32m'; C='\033[0;36m'; Y='\033[0;33m'; N='\033[0m'
+echo ""
+printf '%b\n' "${B}  DIKNOM OS - Pusat Bantuan${N}"
+printf '  ------------------------------------\n'
+printf '  %bpkg install <paket>%b   pasang aplikasi\n' "$G" "$N"
+printf '  %bpkg update / upgrade%b  perbarui sistem\n' "$G" "$N"
+printf '  %bdnfetch%b              info sistem\n' "$G" "$N"
+printf '  %bhelp jaringan%b        setting wifi\n' "$G" "$N"
+printf '  %bhelp tampilan%b       atur layar & tema\n' "$G" "$N"
+printf '\n  %bCatatan:%b apt juga tersedia langsung (apt install ...).\n' "$Y" "$N"
+printf '  %bCatatan:%b DikNom OS disusun di atas Debian 12 oleh Dikki Nomiarki.\n\n' "$Y" "$N"
+
+case "$1" in
+  jaringan|wifi|network)
+    echo "  nmcli device wifi list"
+    echo "  nmcli device wifi connect 'NamaWiFi' password 'sandi'" ;;
+  tampilan|layar|display)
+    echo "  xrandr                    daftar resolusi"
+    echo "  xrandr --output <nama> --mode 1366x768"
+    echo "  xfce4-display-settings    (normal) / lxrandr (lite)" ;;
+esac

@@ -1,0 +1,9 @@
+
+  ==========================================================
+        DIKNOM OS @VERSION@  -  Blitar Edition
+        disusun oleh Dikki Nomiarki
+  ==========================================================
+    pkg       pasang/upgrade aplikasi (pembungkus apt)
+    dnfetch   info sistem
+    help      pusat bantuan
+  ==========================================================

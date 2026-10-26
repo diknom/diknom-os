@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Tentang DikNom OS
+Comment=Informasi sistem dan penyusun
+Exec=/usr/local/bin/diknom-about
+Icon=help-about
+Categories=System;

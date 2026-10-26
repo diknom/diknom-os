@@ -1,0 +1,13 @@
+PRETTY_NAME="DikNom OS @VERSION@ (Blitar Edition)"
+NAME="DikNom OS"
+VERSION="@VERSION@ (bookworm)"
+VERSION_ID="12"
+VERSION_CODENAME=bookworm
+ID=debian
+ID_LIKE=debian
+HOME_URL="https://github.com/diknom/diknom-os"
+SUPPORT_URL="https://github.com/diknom/diknom-os/issues"
+BUG_REPORT_URL="https://github.com/diknom/diknom-os/issues"
+DIKNOM_VERSION="@VERSION@"
+DIKNOM_BASE="debian-bookworm"
+DIKNOM_MAKER="Dikki Nomiarki"

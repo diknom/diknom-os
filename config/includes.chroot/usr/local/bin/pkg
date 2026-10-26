@@ -1,0 +1,53 @@
+#!/bin/sh
+# pkg - pembungkus apt untuk DikNom OS.
+# apt tetap ada; pkg hanya memberi nama dan keluaran yang konsisten.
+# Bahkan kalau kamu ketik "pkg install x", yang menjalankan tetap apt-get.
+
+say() { printf '%b\n' "$*"; }
+case "$1" in
+    update)
+        shift; say "\033[0;36m[>]\033[0m apt-get update"
+        exec apt-get update "$@" ;;
+    upgrade)
+        say "\033[0;36m[>]\033[0m apt-get update && apt-get upgrade"
+        apt-get update && exec apt-get upgrade -y ;;
+    install|add)
+        shift
+        [ -n "$1" ] || { say "Pakai: pkg install <paket>"; exit 1; }
+        say "\033[0;36m[>]\033[0m apt-get install -y $*"
+        exec apt-get install -y "$@" ;;
+    remove|del|delete)
+        shift
+        [ -n "$1" ] || { say "Pakai: pkg remove <paket>"; exit 1; }
+        exec apt-get remove -y "$@" ;;
+    search|find)
+        shift; exec apt-cache search "$@" ;;
+    list)
+        exec dpkg --get-selections | awk '$2 != "deinstall" {print $1}' ;;
+    info|show)
+        shift; exec apt-cache show "$@" ;;
+    files)
+        shift; exec dpkg -L "$@" ;;
+    doctor)
+        say ""; say "Pemeriksaan sistem:"
+        ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && say "  [ok] jaringan" || say "  [!] jaringan tidak ada"
+        say "  basis     : $(. /etc/os-release; echo "$PRETTY_NAME")"
+        say "  debian    : $(cat /etc/debian_version 2>/dev/null)"
+        say "  paket apt : $(dpkg -l | grep -c '^ii') terpasang"
+        say "  RAM bebas : $(awk '/MemFree/{printf "%.0f MB", $2/1024}' /proc/meminfo)"
+        say "" ;;
+    help|--help|-h|"")
+        say ""
+        say "  pkg - paket DikNom OS (di atas apt)"
+        say "    pkg update            perbarui daftar paket"
+        say "    pkg upgrade           perbarui semua paket"
+        say "    pkg install <paket>   pasang paket"
+        say "    pkg remove  <paket>   hapus paket"
+        say "    pkg search  <kata>    cari paket"
+        say "    pkg list              paket terpasang"
+        say "    pkg files   <paket>   berkas milik paket"
+        say "    pkg doctor            cek sistem"
+        say "" ;;
+    *)
+        say "pkg: perintah '$1' tidak dikenal. Coba: pkg help"; exit 1 ;;
+esac
