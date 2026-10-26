@@ -16,8 +16,8 @@ Repo ini publik. Aturan keras:
 
 | Hal | Nilai | Alasan |
 |---|---|---|
-| Autologin | user `diknom` di tty1 | ISO live harus langsung bisa dipakai |
-| Password root | `diknom` | hanya untuk konsol lokal, tidak ada layanan jaringan |
+| Autologin | user `diknom` (password `diknom`) | ISO live harus langsung bisa dipakai |
+| Password root | `root` | standar live ISO; hanya konsol lokal, tidak ada layanan jaringan |
 | Layanan jaringan | tidak ada (sshd mati) | permukaan serangan nol |
 | SSH | tidak diinstal | ditambahkan nanti sebagai paket opsional |
 

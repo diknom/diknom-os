@@ -9,7 +9,7 @@ Kernel Linux, XFCE/LXDE, dan seluruh paket sistem adalah
 perangkat lunak yang sudah ada. DikNom OS memilih, mengonfigurasi,
 memberi identitas, dan membangun ISO-nya.
 
-Kernel : $(uname -r)
+Kernel : $(uname -r)\nBasis  : $(. /etc/os-release; echo $PRETTY_NAME)
 Layar  : ${DISPLAY:-konsol}
 
 github.com/diknom/diknom-os"

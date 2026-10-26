@@ -11,7 +11,7 @@ if ! id diknom >/dev/null 2>&1; then
     useradd -m -s /bin/bash -G sudo,audio,video,netdev,plugdev,cdrom diknom
 fi
 echo "diknom:diknom" | chpasswd
-echo "root:diknom"   | chpasswd
+echo "root:root"     | chpasswd
 mkdir -p /etc/sudoers.d
 echo "diknom ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/diknom
 chmod 0440 /etc/sudoers.d/diknom
@@ -68,8 +68,15 @@ esac
 # --- metadata ---
 echo "$DESKTOP" > /etc/diknom-desktop
 echo "$DM" > /etc/diknom-dm
+# kernel yang benar-benar terpasang di image ini
+KP=""
+KKEYS=$(dpkg-query -W -f='${Package} ${Version}\n' 'linux-image-*' 2>/dev/null \
+    | grep -vE 'unsigned|dbg|headers|modules' | head -1)
+[ -n "$KKEYS" ] && KP="${KKEYS%%\n*}"
+
 cat > /etc/diknom-build <<EOF
 DIKNOM_VERSION=$VER
+DIKNOM_KERNEL=$KP
 DIKNOM_BASE=debian-$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2 | tr -d '"')
 DIKNOM_DESKTOP=$DESKTOP
 DIKNOM_DM=$DM

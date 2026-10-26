@@ -22,9 +22,25 @@ biasanya perlu lebih.
 
 Delapan ISO per build: enam desktop di amd64, plus XFCE dan LXDE di i386.
 
-Kernel dan desktop versi terbaru: amd64 memakai **Debian 13 (trixie)** — kernel
-6.12, GNOME 48, KDE Plasma 6, XFCE 4.20, LXQt 2. i386 tetap di **Debian 12
-(bookworm)** karena Debian 13 tidak lagi menerbitkan kernel dan userspace i386.
+## Kernel
+
+| Arsitektur | Basis | Kernel |
+|---|---|---|
+| amd64 | Debian 13 (trixie) | `linux-image-amd64` → seri **6.12 LTS** |
+| i386 | Debian 12 (bookworm) | `linux-image-686-pae` → seri **6.1 LTS** |
+
+Versi patch yang benar-benar terpasang **tidak dikarang di dokumen ini** — ia
+dicatat saat build dan bisa dibaca dari sistem:
+
+    cat /etc/diknom-build      # DIKNOM_KERNEL=<paket> <versi>
+    dnfetch                    # baris "Kernel" dan "Paket krn"
+    uname -r
+
+i386 tetap di Debian 12 karena Debian 13 tidak lagi menerbitkan kernel dan
+userspace i386; itu batas Debian, bukan pilihan kita.
+
+Desktop: amd64 memakai versi terbaru dari trixie (GNOME 48, KDE Plasma 6,
+XFCE 4.20, LXQt 2, MATE 1.26, LXDE 0.10).
 
 ## Isi khas DikNom OS
 
@@ -34,7 +50,7 @@ Kernel dan desktop versi terbaru: amd64 memakai **Debian 13 (trixie)** — kerne
 - `help` — bantuan bertopik.
 - `diknom-about` — menu Tentang yang menyebut penyusun dan menyatakan terus
   terang bahwa fondasinya Debian.
-- Autologin user `diknom` (password `diknom`), root password `diknom`.
+- Autologin user `diknom` dengan password `diknom`; password root `root`.
 - Logo DikNom OS di splash boot, layar login (GDM/SDDM/LightDM), dan wallpaper.
 - `os-release` bermerek dengan `ID=debian` supaya apt dan alat sistem tetap
   mendeteksi basisnya dengan benar.

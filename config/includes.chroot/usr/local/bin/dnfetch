@@ -6,6 +6,7 @@ UPTIME=$(uptime -p 2>/dev/null || awk '{printf "%d jam", $1/3600}' /proc/uptime)
 MEMF=$(awk '/MemFree/{printf "%.0f", $2/1024}' /proc/meminfo)
 MEMT=$(awk '/MemTotal/{printf "%.0f", $2/1024}' /proc/meminfo)
 DE=$(cat /etc/diknom-desktop 2>/dev/null || echo "?")
+KPKG=$(sed -n 's/^DIKNOM_KERNEL=//p' /etc/diknom-build 2>/dev/null)
 PKGN=$(dpkg -l 2>/dev/null | grep -c '^ii')
 
 printf '\n'
@@ -15,6 +16,7 @@ printf '   \033[1;34m#    # \033[0m  OS        : %s\n' "${PRETTY_NAME:-DikNom OS
 printf '   \033[1;34m#   #  \033[0m  Basis     : %s\n' "${DIKNOM_BASE:-?}"
 printf '   \033[1;34m#####  \033[0m  Desktop   : %s\n' "$DE"
 printf '              Kernel    : %s (%s)\n' "$KERNEL" "$ARCH"
+[ -n "$KPKG" ] && printf '              Paket krn : %s\n' "$KPKG"
 printf '              RAM       : %s MB bebas / %s MB\n' "$MEMF" "$MEMT"
 printf '              Paket apt : %s terpasang\n' "$PKGN"
 printf '              Uptime    : %s\n' "$UPTIME"
