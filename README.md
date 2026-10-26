@@ -50,7 +50,7 @@ XFCE 4.20, LXQt 2, MATE 1.26, LXDE 0.10).
 - `help` — bantuan bertopik.
 - `diknom-about` — menu Tentang yang menyebut penyusun dan menyatakan terus
   terang bahwa fondasinya Debian.
-- **Autologin root**, password `root`. User `diknom` (password `diknom`) juga
+- **Autologin root**, password `root1234`. User `diknom` (password `diknom`) juga
   tersedia kalau kamu mau sesi non-root. Keduanya bisa diganti lewat
   `passwd` di terminal, atau dari Settings setelah masuk.
 - Logo DikNom OS di splash boot, layar login (GDM/SDDM/LightDM), dan wallpaper.

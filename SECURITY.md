@@ -16,8 +16,8 @@ Repo ini publik. Aturan keras:
 
 | Hal | Nilai | Alasan |
 |---|---|---|
-| Autologin | **root** (password `root`) | ISO live harus langsung bisa dipakai; ganti dengan `passwd` |
-| Password root | `root` | standar live ISO; hanya konsol lokal, tidak ada layanan jaringan |
+| Autologin | **root** (password `root1234`) | ISO live harus langsung bisa dipakai; ganti dengan `passwd` |
+| Password root | `root1234` | standar live ISO; hanya konsol lokal, tidak ada layanan jaringan |
 | Layanan jaringan | tidak ada (sshd mati) | permukaan serangan nol |
 | SSH | tidak diinstal | ditambahkan nanti sebagai paket opsional |
 
